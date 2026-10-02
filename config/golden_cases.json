@@ -1,0 +1,7 @@
+[
+  {"name": "Meenal 1: paid for installation", "request_text": "I paid for the installation but nobody has come yet", "product_family": "water purifier", "warranty_status": "in_warranty", "channel": "chat"},
+  {"name": "Meenal 1b: paid for repair", "request_text": "I already paid for the repair visit, please send the technician", "product_family": "robot vacuum", "warranty_status": "out_of_warranty", "channel": "email"},
+  {"name": "Meenal 2: purifier breakdown", "request_text": "my water purifier stopped working and is leaking", "product_family": "water purifier", "warranty_status": "in_warranty", "channel": "whatsapp"},
+  {"name": "Meenal 3: call me", "request_text": "please call me about my purifier", "product_family": "water purifier", "warranty_status": "unknown", "channel": "ivr"},
+  {"name": "Empty text", "request_text": "", "product_family": "fan", "warranty_status": "in_warranty", "channel": "ivr"}
+]

@@ -1,0 +1,10 @@
+# Normalise line endings so a fresh clone on Windows and on Linux produces identical files
+# and the test suite does not depend on the checkout.
+* text=auto eol=lf
+
+# Binary, must never be line-ending translated.
+*.joblib binary
+*.pdf   binary
+*.xlsx  binary
+*.xls   binary
+*.png   binary

@@ -1,0 +1,31 @@
+:root{--ink:#1a1a1a;--mute:#666;--line:#d8d8d8;--brand:#1f4e79;--warn:#fff4d6;--warnb:#e0b000;--bad:#fde8e8;--badb:#c0392b;--ok:#e8f5e9}
+*{box-sizing:border-box}
+body{font-family:system-ui,sans-serif;color:var(--ink);margin:0;background:#fafafa}
+header{display:flex;align-items:center;gap:1rem;padding:.75rem 1.25rem;background:#fff;border-bottom:1px solid var(--line)}
+h1{font-size:1.2rem;margin:0}
+.badge{font-size:.8rem;padding:.2rem .6rem;border-radius:99px;background:#eee}
+.badge.ok{background:var(--ok)}.badge.warn{background:var(--warn)}
+nav{display:flex;gap:.25rem;padding:0 1.25rem;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav button{border:0;background:none;padding:.75rem 1rem;cursor:pointer;font:inherit;border-bottom:3px solid transparent}
+nav button.active{border-color:var(--brand);font-weight:600}
+main{max-width:900px;margin:1.5rem auto;padding:0 1.25rem}
+label{display:block;font-size:.85rem;color:var(--mute);margin-top:.5rem}
+textarea,select{width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);border-radius:6px;background:#fff}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+button.primary{margin-top:.75rem;background:var(--brand);color:#fff;border:0;border-radius:6px;padding:.55rem 1.1rem;font:inherit;cursor:pointer}
+button.primary:disabled{opacity:.5;cursor:default}
+.card{border:1px solid var(--line);background:#fff;border-radius:8px;padding:1rem;margin-top:1rem}
+.card.warn{background:var(--warn);border-color:var(--warnb)}
+.card.bad{background:var(--bad);border-color:var(--badb)}
+.team{font-size:1.6rem;font-weight:700}
+.bar{height:10px;background:#e5e5e5;border-radius:5px;margin:.4rem 0}.bar>div{height:10px;background:var(--brand);border-radius:5px}
+table{border-collapse:collapse;width:100%;margin:.75rem 0;background:#fff}
+th,td{border:1px solid var(--line);padding:.4rem .6rem;text-align:left;font-size:.9rem;vertical-align:top}
+pre{background:#111;color:#ddd;padding:.75rem;border-radius:6px;max-height:320px;overflow:auto;font-size:.8rem}
+code{background:#eee;padding:.1rem .3rem;border-radius:4px}
+.kv{display:grid;grid-template-columns:240px 1fr;gap:.25rem .75rem;font-size:.92rem}
+ul{padding-left:1.2rem}
+.why{font-size:.95rem;line-height:1.5;margin:.25rem 0}
+.alt{font-size:.85rem;color:var(--mute)}
+.warn-note{font-size:.85rem;color:var(--mute)}
+#route-out{min-height:1rem}

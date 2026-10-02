@@ -1,0 +1,51 @@
+[
+  {
+    "id": "R-BILLING-PAYMENT",
+    "source": "ops-policy.pdf p1 §3: 'A request belongs to Billing only when the problem is the payment itself (invoice, GST, double charge, refund of a payment, EMI conversion).'",
+    "enabled": false,
+    "when": {"regex": "\\b(invoice|gst|double charge|charged twice|refund not credited|emi conversion|coupon|discount not applied|payment deducted but order|wrong name on (the )?(gst )?invoice|corrected bill)\\b"},
+    "team": "Billing"
+  },
+  {
+    "id": "R-PAID-NOT-BILLING",
+    "source": "ops-policy.pdf p1 §3: 'A customer mentioning that they have paid does not make it a billing request.' Plus teams.csv: Installs & Demo handles installation and demo visits.",
+    "enabled": true,
+    "when": {"regex": "(\\b(paid|payment done|payment made|already paid|paying)\\b[^.]{0,40}\\b(install|installation|reinstall|demo|technician|repair|visit|slot)\\b)|(\\b(install|installation|reinstall|demo|technician|repair|visit|slot)\\b[^.]{0,40}\\b(paid|payment done|already paid)\\b)"},
+    "team": "Installs & Demo"
+  },
+  {
+    "id": "R-FAULT-NOT-CONSUMABLE",
+    "source": "teams.csv: Filters & Consumables handles 'Filters, candles, membranes, jars, brushes, blades, AMC kits ... Not faults.' Repairs handles 'Product faults, breakdowns, error codes, noise, leaks'.",
+    "enabled": false,
+    "when": {"regex": "\\b(not working|stopped working|broken|breakdown|leak|leaking|noise|error code|error e[0-9]|not turning on|blank|tripping|scratched|burnt smell|making loud)\\b"},
+    "team": "Repairs"
+  },
+  {
+    "id": "R-CONSUMABLE-PART",
+    "source": "teams.csv: Filters & Consumables handles 'Filters, candles, membranes, jars, brushes, blades, AMC kits - selling and fitting spares.'",
+    "enabled": false,
+    "when": {"regex": "\\b(filter|candle|membrane|jar|brush roll|blade set|amc filter|amc kit|spare part|spare|spares|consumable pack|where to buy)\\b"},
+    "team": "Filters & Consumables"
+  },
+  {
+    "id": "R-RETURN-DAMAGED",
+    "source": "teams.csv: Returns & Replacement handles 'Damaged, wrong or incomplete deliveries; returns and exchanges within the return window.'",
+    "enabled": false,
+    "when": {"regex": "\\b(damaged|wrong (item|model|product)|scratched|missing parts in box|return pickup|cancel and return|return the|exchange)\\b"},
+    "team": "Returns & Replacement"
+  },
+  {
+    "id": "R-WARRANTY-COVERAGE",
+    "source": "teams.csv: Warranty Claims handles 'Warranty and Kestrel Shield registration, coverage questions, claim status.'",
+    "enabled": false,
+    "when": {"regex": "\\b(warranty|shield plan|shield|claim status|extend warranty|coverage|claim for|warranty card)\\b"},
+    "team": "Warranty Claims"
+  },
+  {
+    "id": "R-USAGE-ADVICE",
+    "source": "teams.csv: Product Advice handles 'Pre- and post-purchase usage questions. No fault reported.'",
+    "enabled": false,
+    "when": {"regex": "\\b(how to clean|how to use|best settings|can .* run on inverter|difference between|power consumption|recipe booklet|safe for kids|difference from)\\b"},
+    "team": "Product Advice"
+  }
+]

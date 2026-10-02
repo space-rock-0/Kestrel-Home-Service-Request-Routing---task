@@ -1,0 +1,20 @@
+# Pinned to the versions this project was built and tested against, on 2026-10-02.
+#
+# Why pinned rather than >= : the deliverable has to start on a clean machine with
+# `pip install -r requirements.txt` and nothing else. Unpinned ranges resolved to
+# pandas 3.0.6 here; an unpinned install six months from now could resolve to a
+# different major and break the run in a way nobody has tested. See decisions.md D16.
+#
+# If you upgrade one, re-run `pytest -q` and the pipeline before trusting it.
+
+pandas==3.0.6
+numpy==2.5.3
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
+ftfy==6.3.1
+openpyxl==3.1.5
+xlrd==2.0.2
+fastapi==0.142.2
+uvicorn==0.54.0
+pypdf==6.19.0

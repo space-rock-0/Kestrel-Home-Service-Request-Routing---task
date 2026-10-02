@@ -1,0 +1,177 @@
+{
+  "_comment": "Input file roles. A file is matched by filename stem first, then by its column headers. Headers are lowercased with spaces turned into underscores, then alternative names in 'aliases' are renamed to the required ones.",
+  "extensions": [
+    ".xlsx",
+    ".xlsm",
+    ".xls",
+    ".csv",
+    ".tsv"
+  ],
+  "common_aliases": {
+    "request_id": [
+      "id",
+      "ticket_id",
+      "service_request_number",
+      "service_request_no",
+      "sr_number",
+      "sr_no",
+      "request_no",
+      "request_number"
+    ],
+    "created_at_ist": [
+      "created_at",
+      "created",
+      "created_on",
+      "creation_time",
+      "created_date",
+      "created_datetime",
+      "timestamp"
+    ],
+    "channel": [
+      "contact_channel",
+      "request_channel"
+    ],
+    "product_family": [
+      "product",
+      "product_name",
+      "product_category",
+      "product_line"
+    ],
+    "warranty_status": [
+      "warranty",
+      "warranty_type",
+      "warranty_state"
+    ],
+    "request_text": [
+      "text",
+      "message",
+      "customer_message",
+      "opening_message",
+      "description",
+      "transcript",
+      "request_message"
+    ],
+    "source": [
+      "system",
+      "origin",
+      "source_system"
+    ]
+  },
+  "files": {
+    "train": {
+      "stems": [
+        "train"
+      ],
+      "required": [
+        "request_id",
+        "created_at_ist",
+        "channel",
+        "product_family",
+        "warranty_status",
+        "request_text",
+        "source",
+        "team_label"
+      ],
+      "needed_for": [
+        "train"
+      ],
+      "aliases": {
+        "team_label": [
+          "bot_label",
+          "bot_team",
+          "bot_queue",
+          "queue",
+          "assigned_team",
+          "routed_team"
+        ]
+      }
+    },
+    "test": {
+      "stems": [
+        "test_unlabelled",
+        "test_unlabeled",
+        "test"
+      ],
+      "required": [
+        "request_id",
+        "created_at_ist",
+        "channel",
+        "product_family",
+        "warranty_status",
+        "request_text",
+        "source"
+      ],
+      "needed_for": [
+        "predict"
+      ]
+    },
+    "resolution": {
+      "stems": [
+        "resolution_log",
+        "resolution"
+      ],
+      "required": [
+        "request_id",
+        "first_team",
+        "final_team",
+        "transfers",
+        "resolved_at"
+      ],
+      "needed_for": [
+        "train"
+      ],
+      "aliases": {
+        "final_team": [
+          "closed_by_team",
+          "resolving_team",
+          "closing_team"
+        ],
+        "first_team": [
+          "initial_team",
+          "first_queue"
+        ],
+        "resolved_at": [
+          "closed_at",
+          "resolved_on",
+          "resolution_time"
+        ]
+      }
+    },
+    "teams": {
+      "stems": [
+        "teams"
+      ],
+      "required": [
+        "team",
+        "renamed_to",
+        "handles"
+      ],
+      "needed_for": [
+        "train"
+      ],
+      "aliases": {
+        "renamed_to": [
+          "new_name",
+          "renamed",
+          "current_name"
+        ],
+        "handles": [
+          "scope",
+          "description",
+          "responsibility"
+        ]
+      }
+    },
+    "sample_submission": {
+      "stems": [
+        "sample_submission",
+        "submission"
+      ],
+      "required": [
+        "request_id",
+        "team"
+      ],
+      "needed_for": []
+    }
+  }
+}

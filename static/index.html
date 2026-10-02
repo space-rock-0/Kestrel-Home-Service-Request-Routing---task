@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kestrel routing</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>Kestrel routing</h1>
+  <span id="badge" class="badge">checking...</span>
+</header>
+<nav id="tabs">
+  <button data-tab="route" class="active">Route a request</button>
+  <button data-tab="data">Input data</button>
+  <button data-tab="pipeline">Pipeline</button>
+  <button data-tab="results">Results</button>
+  <button data-tab="ext">Extensions</button>
+</nav>
+<main>
+  <section id="tab-route">
+    <label for="t">Customer message or IVR transcript</label>
+    <textarea id="t" rows="4" placeholder="e.g. I paid for installation but nobody has come"></textarea>
+    <div class="row3">
+      <div><label for="p">Product</label><select id="p"></select></div>
+      <div><label for="w">Warranty</label><select id="w"></select></div>
+      <div><label for="c">Channel</label><select id="c"></select></div>
+    </div>
+    <button id="go" class="primary">Route it</button>
+    <div id="route-out"></div>
+  </section>
+
+  <section id="tab-data" hidden>
+    <p>Drop Excel (.xlsx, .xlsm, .xls) or CSV files into <code id="indir"></code>. The app detects them on its own.</p>
+    <div id="data-msg"></div>
+    <table id="files"><thead><tr><th>File</th><th>Role</th><th>Matched by</th><th>Columns</th></tr></thead><tbody></tbody></table>
+    <div id="missing"></div>
+    <button id="validate" class="primary">Validate now</button>
+    <div id="validation"></div>
+  </section>
+
+  <section id="tab-pipeline" hidden>
+    <p>Runs validate, audit, train and evaluate, then checks <code>predictions.csv</code>.</p>
+    <button id="run" class="primary">Run pipeline</button>
+    <div id="job"></div>
+    <pre id="joblog"></pre>
+  </section>
+
+  <section id="tab-results" hidden>
+    <div id="metrics"></div>
+    <a id="dl" href="/api/predictions/download">Download predictions.csv</a>
+  </section>
+
+  <section id="tab-ext" hidden>
+    <div id="ext"></div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

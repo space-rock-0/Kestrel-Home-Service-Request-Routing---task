@@ -1,0 +1,28 @@
+.venv
+__pycache__
+.pytest_cache
+.git
+tests
+
+# Input data is real customer data and is mounted at run time, never baked into an image.
+# See decisions.md D6 — whether the committed repo copy is masked is still the user's call.
+data/input/*
+!data/input/README.md
+
+# artifacts/* is excluded EXCEPT the trained model and its metrics. Those two have to be in the
+# image, otherwise the container boots with nothing to predict from and /api/v1/predict
+# answers 503 on a clean machine.
+artifacts/*
+!artifacts/model.joblib
+!artifacts/metrics.json
+!artifacts/.gitkeep
+
+# The other artifacts are outputs of a run, not inputs to boot.
+artifacts/audit.txt
+artifacts/confusion_holdout.csv
+artifacts/errors_holdout.csv
+artifacts/policy.txt
+artifacts/predictions*.csv
+artifacts/state.json
+artifacts/form_values.json
+artifacts/numbers.txt
