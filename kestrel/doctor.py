@@ -22,7 +22,9 @@ def run_doctor(ctx, strict: bool = False) -> dict:
 
     soft = "fail" if strict else "warn"  # "nothing here yet" is a failure only in strict mode
     v = sys.version_info
-    add("python 3.10+", "pass" if v >= (3, 10) else "fail", f"{v.major}.{v.minor}.{v.micro}")
+    # 3.12, not 3.10: numpy==2.5.3 and scipy==1.18.1 ship wheels for 3.12+ only. Claiming 3.10
+    # made doctor pass on a machine where pip install could never have succeeded.
+    add("python 3.12+", "pass" if v >= (3, 12) else "fail", f"{v.major}.{v.minor}.{v.micro}")
     for m in REQUIRED_MODULES:
         try:
             importlib.import_module(m)

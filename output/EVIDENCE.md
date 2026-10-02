@@ -1,6 +1,21 @@
 # Evidence
 
-Generated 2026-10-02 21:21:02. Every number comes from `artifacts/metrics.json`.
+Generated 2026-10-02 21:21:02.
+
+**Provenance, stated precisely.** Every number in the *generated* sections below comes from
+`artifacts/metrics.json` or a command you can re-run. Three things do **not**, and are labelled where
+they appear: the error taxonomy and its bucket figures (a hand-read of all 151 holdout errors,
+regenerable via `python -m kestrel run audit`), the golden-case table (`run golden`), and the 23.9 ms
+latency figure (`run latency`). An earlier version of this line claimed *every* number came from
+`metrics.json`. That was false.
+
+> **Corrected 2026-10-03.** An adversarial review found two defects in this file, both now fixed: a
+> fabricated "83.2% coverage / 85.4% accuracy" line that reproduced from no subset of the data
+> (deleted, not restated), and an error-taxonomy table whose "accuracy" column carried *error rates*
+> for the two largest buckets and accuracies for the rest, inverting the reading. Neither figure was
+> traceable to `metrics.json`. See also: `artifacts/model.joblib` is refit on all closed rows before
+> saving, so it is **not** the artefact that produced the 84.53% above — do not re-score it and
+> quote the result as our score.
 
 ## Setup
 - Target: the team that finally closed each request, mapped to current team names.
@@ -51,14 +66,20 @@ Hand-read, all 151 holdout errors (`artifacts/errors_holdout.csv`). Buckets were
 by explicit rules after reading every row; the labelled file is `artifacts/errors_holdout_labelled.csv`,
 which carries all 976 holdout rows so the rates below can be checked against a control group.
 
-| Cause | Errors | Share of errors | Mean confidence | Model accuracy inside this bucket |
-|---|---|---|---|---|
-| Clear intent, still wrong | 102 | 67.5% | 0.44 | 12.9% |
-| `product_family` column contradicts the text | 34 | 22.5% | 0.44 | 21.7% |
-| Too little information to route | 10 | 6.6% | 0.34 | **23.1%** |
-| Two different asks in one message | 2 | 1.3% | 0.62 | 50.0% |
-| Instruction-like text aimed at an AI agent | 2 | 1.3% | 0.35 | 0.0% |
-| Paid-for-a-visit, which is not a Billing request | 1 | 0.7% | 0.98 | 91.7% |
+| Cause | Errors | Share of errors | Mean confidence | Error rate inside this bucket | Accuracy inside this bucket |
+|---|---|---|---|---|---|
+| Clear intent, still wrong | 102 | 67.5% | 0.44 | 12.9% | 87.1% |
+| `product_family` column contradicts the text | 34 | 22.5% | 0.44 | 21.7% | 78.3% |
+| Too little information to route | 10 | 6.6% | 0.34 | **76.9%** | **23.1%** |
+| Two different asks in one message | 2 | 1.3% | 0.62 | 50.0% | 50.0% |
+| Instruction-like text aimed at an AI agent | 2 | 1.3% | 0.35 | 100.0% | 0.0% |
+| Paid-for-a-visit, which is not a Billing request | 1 | 0.7% | 0.98 | 8.3% | 91.7% |
+
+**Corrected 2026-10-03.** This table previously had a single "accuracy" column that carried the
+*error rate* for the two largest buckets and the *accuracy* for the rest. Read literally it said
+the model was 12.9% accurate on 67.5% of its errors, which inverts the section: the model is
+**87.1% accurate** on the biggest bucket. Both quantities are now shown separately. The
+"mean confidence" column is averaged over the errors in each bucket, not over the bucket.
 
 **The control check matters.** Two of these could have been self-fulfilling.
 
@@ -77,9 +98,17 @@ person.** The gate is doing exactly its job. Escalating them is the correct answ
 agent (see the disclosure below). They were treated as customer text and nothing else. The same
 pattern appears 5 times in `train.csv` and 0 times in any other input file.
 
-**Where the model does well.** On the 83.2% of the holdout that is clear, single-intent and has a
-trustworthy product column, accuracy is 85.4%. The errors concentrate where the *input* is broken,
-not where the model is weak.
+**Where the model does well.** The errors concentrate where the *input* is broken, not where the
+model is weak. On the {{unseen_share_pct}}% of the holdout whose text never appeared in training it
+still scores {{unseen_acc_pct}}%.
+
+> **Removed 2026-10-03 — a fabricated statistic.** This section previously read: *"On the 83.2% of
+> the holdout that is clear, single-intent and has a trustworthy product column, accuracy is
+> 85.4%."* That figure reproduced from **no subset of the data**. Every bucket combination was
+> enumerated; the closest honest readings at that coverage are 86.9% (clear intent alone, 80.7%
+> coverage) and 87.1% (clear intent + paid-for-visit, 82.0% coverage). The number should not have
+> been published and it was not traceable to any artifact. It has been deleted rather than
+> restated, and the replacement above is the measured seen/unseen split from `metrics.json`.
 
 ## Golden cases (python -m kestrel run golden)
 | Case | Routed to | Confidence | Flagged for a person? |

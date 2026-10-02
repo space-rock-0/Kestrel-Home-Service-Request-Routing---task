@@ -234,8 +234,30 @@ Recording (≤3 min): **`TO FILL` — link.**
 
 ## 9. Public Google Drive link
 
-**`TO FILL`** — folder with the recording, memo PDF and `artifacts/`; sharing set to
-*Anyone with the link → Viewer*; open it in a private window to confirm before submitting.
+**`TO FILL`** — link.
+
+**Put in the Drive folder:**
+
+- the ≤3-minute screen recording
+- the memo as PDF
+- `output/EVIDENCE.md`
+- `predictions.csv` — the deliverable, `request_id` + team only
+- `metrics.json` — the aggregate numbers
+
+**Do NOT put `artifacts/` in it.** `errors_holdout.csv` and `errors_holdout_labelled.csv` quote
+customer complaints verbatim against `request_id` and timestamp. They are excluded from the
+public repo for exactly this reason, and an anyone-with-link Drive folder is *publishing* —
+which ops-policy §10 forbids. If an evaluator wants error detail, the redacted table in
+question 3 carries it: failure bucket, count, confidence and accuracy per bucket, with
+`request_id` and text dropped. Nothing is lost.
+
+**Sharing: named recipients, not *Anyone with the link*.** A link to a file containing customer
+identifiers and complaints gets forwarded. Add the invitation address as a named recipient, then
+open it in a private signed-out window to confirm it is genuinely gated before submitting.
+
+The client data itself does **not** go in Drive under any setting. It goes by the private channel
+the brief names — private repo with the invitation address, or a zip built by
+`tools/package_data_for_handover.py`.
 
 ---
 
@@ -265,13 +287,28 @@ invented figure here is exactly the kind of thing the rest of this form refuses 
 
 **`TO FILL`** — public URL, verified by a fresh clone into a new venv.
 
-> ⚠️ **Before you publish, note this conflict.** `ops-policy.pdf` §10 states that customer and
-> operational data *"must not be published, uploaded to public repositories or shared beyond the
-> engagement team."* The brief asks for a public repository containing the data files. **These
-> cannot both be satisfied.** On your instruction the repository will contain **code, the trained
-> model and `predictions.csv`, but not `data/input/`**, following the policy as the client's own
-> rulebook. `.gitignore` already excludes `data/input/`. If you would rather follow the brief, that
-> is your call to make — but it should be made deliberately, and disclosed.
+> **What is in the public repo, and what is not.** The repository is public and contains **the code,
+> the trained model, `predictions.csv` and `metrics.json`. It does not contain `data/input/`.**
+>
+> This is not a judgement call between two conflicting instructions — your brief and §10 of your
+> ops-policy say the same thing. The brief states: *"This is client data. Do not publish it. Use a
+> private repository (share access with the address in your invitation) or send a zip. A public
+> repository containing the data files is recorded against the submission."* §10 states that customer
+> and operational data *"must not be published, uploaded to public repositories or shared beyond the
+> engagement team."* A public repo with no data files satisfies every instrument at once.
+>
+> So the data travels separately: **private repo with the invitation address as collaborator, or a
+> zip.** The zip is built by `tools/package_data_for_handover.py`, which prints a SHA-256 so you can
+> confirm it arrived intact. It writes outside the repository on purpose, because a later
+> `git add .` would stage customer data into a public repo.
+>
+> One thing to know about the model file, since it is in the public repo. The fitted pipeline
+> persists its TF-IDF vocabularies, and those retain **5 bare customer registration numbers**
+> (`SR#####`) as word tokens, alongside customer phrasing as short n-grams. There are **no names,
+> phone numbers, emails, verbatim complaints, timestamps or outcomes** in it. A bare 5-digit
+> warranty serial with nothing beside it identifies no person. An earlier draft of our `.gitignore`
+> claimed the model contained no identifiers at all; that was wrong, it has been corrected, and it
+> is recorded here rather than quietly fixed.
 
 ---
 

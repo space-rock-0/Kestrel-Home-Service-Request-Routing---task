@@ -5,7 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        # 3.10/3.11 removed: the pinned numpy/scipy have no wheels for them, so those jobs
+         # failed at the install step without ever running a test. The floor is 3.12.
+         python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

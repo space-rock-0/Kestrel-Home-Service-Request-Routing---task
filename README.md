@@ -6,7 +6,9 @@ The model learns from where past requests ended up (`final_team` in the resoluti
 
 ## Quick start
 
-Python 3.10 or newer.
+Python 3.12 or newer. The pinned dependencies (`numpy==2.5.3`, `scipy==1.18.1`) publish wheels
+for 3.12+ only, so on 3.10 or 3.11 `pip install -r requirements.txt` fails outright rather than
+degrading. `python -m kestrel doctor` checks this too.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate

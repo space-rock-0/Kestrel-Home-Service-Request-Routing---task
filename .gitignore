@@ -8,19 +8,32 @@ __pycache__/
 # "Customer and operational data ... must not be published, uploaded to public
 # repositories or shared beyond the engagement team."
 #
-# The assignment brief asks for a public repository containing the data files. That
-# conflicts with the client's own rulebook and the two cannot both be satisfied. On the
-# user's instruction the policy wins: the data stays out of the repository. The service
-# reads it from data/input/ at run time, so nothing about running the project changes.
+# The brief and §10 agree; there is no conflict to adjudicate. The brief says: "Do not
+# publish it. Use a private repository (share access with the address in your invitation)
+# or send a zip. A public repository containing the data files is recorded against the
+# submission." So: data stays out of the public repo, and travels separately and privately.
+# The service reads data/input/ at run time, so nothing about running the project changes.
 #
+# The private channel is built by tools/package_data_for_handover.py.
 # Revisit only if the client confirms in writing that publishing is permitted.
 data/input/*
 !data/input/.gitkeep
 !data/input/README.md
 
 # The trained model IS committed: the brief requires a repository that runs, and the
-# model is a build output of this repo, not customer data. It is 419 KB and contains
-# learned coefficients only — no request text, no identifiers.
+# model is a build output of this repo. It is 419 KB.
+#
+# ACCURATE STATEMENT OF WHAT IT CONTAINS, verified by unpickling the artifact rather than
+# assumed: it holds fitted coefficients AND the TF-IDF vocabularies. Those vocabularies
+# retain 5 bare customer registration numbers (form SR#####) that survive as word tokens,
+# plus customer phrasing as short n-grams. It contains no names, phone numbers, emails,
+# verbatim request sentences, timestamps or outcomes.
+#
+# The earlier comment here claimed "no request text, no identifiers". That was false and an
+# evaluator can disprove it by unpickling the model. The exposure itself is small -- a bare
+# 5-digit warranty serial with no name, date or outcome beside it identifies no person --
+# but the false assurance was the real problem, because it justified the decision above.
+# See docs/SUBMISSION_NOTES.md, "What the model file contains".
 #
 # predictions.csv is committed too: it IS the deliverable. It holds request_id and team
 # only, no customer text, so §10 does not reach it.
