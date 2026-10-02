@@ -201,12 +201,40 @@ def test_drift_haircut_applies_only_when_last_month_is_worse():
 
 
 def test_render_docs_fills_measured_and_flags_hand_written(trained, tmp_path):
+    """Every template placeholder must be resolvable, or render_docs destroys content.
+
+    This test previously asserted the opposite: that `author`, `bot_rule_fixes` and
+    `busiest_teams` stayed unresolved. That was guarding a real bug. Unresolved placeholders are
+    written through to output/ verbatim, and three were unresolved, so a single render replaced
+    125 hand-written lines of the evidence pack with three literal "{{...}}" strings. The
+    invariant now asserted is the safe one: only genuinely human-owned slots may remain.
+    """
     s = replace(trained, output_dir=tmp_path / "out", templates_dir=ROOT_TEMPLATES)
     r = services.render_docs(AppContext(s), transfer_cost_inr=150, hosting_inr_month=500)
     memo = (tmp_path / "out" / "MEMO.md").read_text()
     assert "{{model_acc_pct}}" not in memo and "{{net_benefit_inr_month_fmt}}" not in memo and "Rs 500" in memo
+
     left = set(r["files"]["MEMO.md"]["unresolved_placeholders"])
-    assert {"author", "bot_rule_fixes", "busiest_teams"} <= left and "bot_acc_pct" not in left
+    # measured values are filled
+    assert "bot_acc_pct" not in left and "model_acc_pct" not in left
+    # fixed prose is supplied by form_values, not left dangling
+    for ph in ("author", "bot_rule_fixes", "busiest_teams"):
+        assert ph not in left, f"{ph} must resolve; an unresolved placeholder overwrites content"
+        assert "{{" + ph + "}}" not in memo
+    # only the slots a human must decide are allowed to remain
+    assert left == {"owner_it", "owner_service"}
+
+
+def test_evidence_template_has_no_unresolvable_placeholders(trained, tmp_path):
+    """EVIDENCE.md must regenerate complete. A regression here silently deletes the evidence pack."""
+    s = replace(trained, output_dir=tmp_path / "out", templates_dir=ROOT_TEMPLATES)
+    r = services.render_docs(AppContext(s), transfer_cost_inr=150, hosting_inr_month=500)
+    evidence = (tmp_path / "out" / "EVIDENCE.md").read_text()
+    assert r["files"]["EVIDENCE.md"]["unresolved_placeholders"] == []
+    assert "{{" not in evidence
+    # the hand-written sections that were lost must still be present after a render
+    for marker in ("Error taxonomy", "Golden cases", "Tried, kept, discarded", "McNemar"):
+        assert marker in evidence, f"{marker!r} was dropped by render_docs"
 
 
 def test_render_docs_without_transfer_cost_leaves_rupee_placeholders(trained, tmp_path):

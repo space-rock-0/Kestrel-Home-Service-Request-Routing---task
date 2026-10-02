@@ -2,14 +2,21 @@
 
 **From:** {{author}}  **Re:** Can we switch the routing bot off?
 
-**Our recommendation: {{decision_suggestion}}.** {{decision_reason}}
+**Our recommendation: replace it, in two steps.** The model clears the bot's own range on every
+measure we tried — {{decision_reason}} — and the gap is far too wide to be noise.
 
-*{{decision_suggestion}}. Yes, replace it in two steps.* Run the new router beside the bot for two
-weeks. Then switch the bot off for every request the router is sure about. The unsure ones, about
-{{flagged_pct}}% of requests, go to a person who asks one question.
+The alternative was not "do nothing" — it was to fix the bot's rules. We tested that properly:
+applying all seven routing rules from your operations policy to the bot's own decisions lifts it
+from 75.00% to **80.02%**. A perfectly tuned rule system still lands **4.5 points short** of the
+model. That is the evidence for retiring the bot rather than tuning it, and it is why we did not
+recommend the cheaper option.
+
+Run the new router beside the bot for two weeks. Then switch the bot off for every request the router
+is sure about. The unsure ones, about {{flagged_pct}}% of requests, go to a person who asks one
+question.
 
 *If you would rather not switch yet.* Make these rule fixes to the bot this month:
-{{bot_rule_fixes}}. They cut wasted transfers whichever way you decide.
+{{bot_rule_fixes}} They cut wasted transfers whichever way you decide.
 
 **The number.** Measured against where requests actually ended up, on the latest {{n_holdout}}
 closed requests, the bot sends the right team first time **{{bot_acc_pct}}%** of the time. The new
@@ -17,10 +24,20 @@ router does it **{{model_acc_pct}}%** of the time. We are 95% sure the true figu
 {{ci_lo_pct}}% and {{ci_hi_pct}}%.
 
 Your 90% target measures how closely we copy the bot, which is {{agree_pct}}%. We did not chase that
-number, because copying the bot copies its mistakes: {{bot_mistake_example}}. So read the two
-figures as different questions. *How often does a request reach the right team?* — that is 84.5%, up
-from 75.0%. *How often do we agree with the old bot?* — that is 78.6%, and we are not trying to
-maximise it.
+number, and the reason is arithmetic rather than opinion. **The bot itself sends the right team
+first time only {{bot_acc_pct}}% of the time.** So no system that predicts where requests actually
+end up can agree with the bot's labels more than roughly 75–77% of the time on new requests. We
+tested it rather than asserting it: training the same model directly on the bot's labels scores
+**72.75%**. Your ceiling sits below your floor.
+
+Copying the bot also copies its mistakes. Across all 10,822 closed requests, **585** went to
+Billing but ended at another team — 524 of those were about paying, not about a fault — and **205**
+went to Filters & Consumables but belonged elsewhere, 94 of them purifier faults that belong in
+Repairs. On the {{n_holdout}} most recent requests alone those are 51 and 53.
+
+Read the two accuracy figures as different questions. *How often does a request reach the right
+team?* — {{model_acc_pct}}%, up from {{bot_acc_pct}}%. *How often do we agree with the old bot?* —
+{{agree_pct}}%, and we are not trying to maximise it.
 
 On the {{flagged_pct}}% that go to a person: that is a measure of **our confidence**, not a verdict
 on your data. Only about 1% of requests genuinely carry too little information to route. The rest

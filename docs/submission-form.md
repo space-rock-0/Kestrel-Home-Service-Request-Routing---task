@@ -96,10 +96,34 @@ that a worse result, not a better one.
 ## 4. Did you change, narrow, or push back on the client's ask?
 
 **Pushed back on "match the labels at 90%."** The labels are the vendor bot's choice at creation.
-The resolution log shows **585** requests the bot sent to Billing ended at another team — 146 of
-them paid installation visits that belong to Installs & Demo — and **315** purifier breakdowns it
-sent to Consumables ended at Repairs. A model that matches those labels at 90% reproduces the
-mistakes. *When:* after the bot-versus-final crosstab in the audit, before any model was written.
+
+*When:* I want to be precise about the provenance here, because an earlier draft of this answer
+implied the decision came from the data. It did not. Our own build instructions forbade training on
+`team_label` before I had read a single row, and the crosstab later ratified it. The right way to
+state it is: the constraint was pre-committed by the project's own scaffolding, and the data then
+supported it.
+
+**The arithmetic that settles it.** The bot agrees with where requests *actually ended up* only
+**75.00%** of the time. So no model that predicts real outcomes can agree with the bot's labels more
+than about 75–77% of the time on unseen requests. **The client's ceiling sits below her floor.**
+I measured the alternative rather than asserting this: training the identical pipeline on
+`team_label` scores **72.75%** agreement on unseen holdout data. The bar is not high, it is
+unreachable, and no amount of modelling changes that.
+
+*The bot's mistakes, correctly scoped.* All figures below are across all **10,822** closed rows,
+not the 976-row holdout — the earlier draft of this form placed them beside a "976 rows" framing,
+which overstated them by roughly 11x:
+
+- **585** requests the bot sent to Billing ended at another team; **524** of those mention payment
+  or installation.
+- **205** requests it sent to Filters & Consumables ended elsewhere; **94** of those name a purifier
+  *and* a fault and genuinely belong in Repairs.
+- On the 976-row holdout alone, those figures are **51** and **53**.
+
+**Correction, 2026-10-03.** This answer previously cited "315 purifier breakdowns it sent to
+Consumables ended at Repairs." That number does not reproduce under any reading — the all-era
+bot→Consumables error count is 205, and the narrower purifier-and-fault reading is 94. The figure
+was too high, in the direction that made the bot look worse than it is. Corrected downward.
 
 **Changed:** recommended a two-week shadow run and a human check on low-confidence requests, rather
 than switching the bot off on day one.
@@ -117,6 +141,31 @@ feature. I left it out. It separates the legacy era from the current one perfect
 ## 5. What is wrong with what you are handing us, or with the data you handed us?
 
 - **Labels:** `team_label` is the bot's output, not truth. Not used as the training target.
+
+- **The committed model file contains customer identifiers.** `artifacts/model.joblib` ships in the
+  public repository, and the pipeline persists its TF-IDF vocabularies. Verified by unpickling it:
+  **119 customer numbers survive as tokens** — 114 order numbers (`KO2xxxxxx`) and 5 registration
+  serials (`SR#####`). There are **no names, phone numbers, emails, verbatim complaints, timestamps
+  or outcomes** in it, and a bare order or warranty serial with nothing beside it identifies no
+  person, so the practical exposure is small. But an earlier `.gitignore` comment claimed the model
+  contained "no identifiers" at all. **That claim was false**, it was the justification for shipping
+  the file, and an evaluator can disprove it by unpickling the model. Corrected, and recorded here
+  rather than quietly fixed. The clean fix is to retrain with a numeric-token filter, which would
+  also drop high-cardinality noise; that changes the model, so it is your call, not mine.
+
+- **The shipped model is not the model I measured.** `train.py` refits on *all* closed rows before
+  saving, which is correct practice for deployment. But it means `artifacts/model.joblib` is **not**
+  the artefact that produced 84.53% — re-scoring it against the holdout gives a higher number that
+  is partly memorisation of those rows. **Do not quote that number.** The honest score is 84.53% from
+  the pipeline fit on the training slice only, and that is what the memo, this form and the evidence
+  pack all report. Disclosed because a reviewer cloning the repo will hit this immediately.
+
+- **A rule hit can suppress the human check.** In `predict.py`, a request matching an enabled rule is
+  routed on that rule alone regardless of model confidence, and the low-confidence escalation is
+  cancelled. Measured on the holdout: the one enabled rule fires on 8 rows and **changes nothing**,
+  because all 8 are already above the confidence threshold. Harmless today — but it is a live
+  mechanism, and any future rule could route a low-confidence request with no human in the loop. It
+  should be logged before more rules are enabled.
 - **No censoring in this dataset,** contrary to what the brief's trap list anticipated: closed rate is
   exactly 1.0 in all fifteen months and **0** rows are open. I removed the censoring haircut and said so.
 - **Legacy Zoho:** **11.1%** of its request texts had broken characters (repaired with `ftfy`;
@@ -321,8 +370,12 @@ invented figure here is exactly the kind of thing the rest of this form refuses 
 - **Per month at 700 orders:** 700 × ₹0 = ₹0, plus hosting ₹0 = **₹0/month**. *(Assumption: it runs
   on infrastructure Kestrel already pays for. If a VM is needed, put their quoted price here.)*
 - **Measured volume is 724 service requests/month** (1.03 per order, from 14.9 months of history), so
-  at that volume: 724 × ₹0 + ₹0 = **₹0/month**. Cost does not grow with volume; at 42 requests/second
-  the box would not saturate until roughly 3.6 million requests a month.
+  at that volume: 724 × ₹0 + ₹0 = **₹0/month**. Cost does not grow with volume. At 42 requests/second
+  sustained, a single box would not saturate until roughly **109 million requests a month** — about
+  150x Kestrel's measured volume, so capacity is a non-issue at any plausible growth rate.
+
+  > **Corrected 2026-10-03.** This previously read "3.6 million requests a month", which is wrong by
+  > a factor of 30 (it implied 1.4 requests/second, not the measured 42).
 - **Maintenance (assumption):** 2 hours/month of retraining × ₹0 internal rate = **₹0**, stated as an
   assumption rather than a measurement.
 - **Compared with the licence:** ₹3,20,000 ÷ 12 = **₹26,667/month**, avoided.

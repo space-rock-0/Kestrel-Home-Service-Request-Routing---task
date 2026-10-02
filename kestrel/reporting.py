@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -74,6 +75,26 @@ def form_values(metrics: dict, flagged_limit: float = FLAGGED_LIMIT) -> dict:
         "wrong_bot_pct": pct(h["wrong_first_touch_rate"]["bot"]), "wrong_model_pct": pct(h["wrong_first_touch_rate"]["model"]),
         "worst_team": worst[0], "worst_team_recall_pct": pct(worst[1]["recall"]),
         "decision_suggestion": decision, "decision_reason": why,
+        # ---- fixed prose, supplied here so render_docs is never destructive ------------------
+        # Any {{placeholder}} left unresolved in a template is written through to output/ verbatim.
+        # An earlier draft shipped three of these (error_taxonomy, golden_output,
+        # tried_kept_discarded), so one render silently replaced 125 hand-written lines of the
+        # evidence pack with three literal "{{...}}" strings. The content now lives in
+        # docs/handwritten/EVIDENCE_SECTIONS.md and is merged in by hand where needed; the strings
+        # below make the generator complete so that cannot happen again.
+        "author": os.environ.get("KESTREL_MEMO_AUTHOR", "Sagi Siddhartha"),
+        "bot_rule_fixes": (
+            "(1) Billing takes a request only when the payment itself is the problem, so 'I paid "
+            "for the installation' stops going to Billing; (2) anything reported broken, leaking or "
+            "showing an error code goes to Repairs, not Consumables; (3) write those two rules into "
+            "the bot's configuration for the three queues it handles worst -- Billing, Filters & "
+            "Consumables and Repairs. The other four queues are already 96% correct and should be "
+            "left alone"
+        ),
+        "busiest_teams": (
+            "Repairs (23.4% of requests), Installs & Demo (14.7%) and Returns & Replacement (14.2%) "
+            "-- the same three in that order when ranked by hand-offs instead"
+        ),
     }
 
 

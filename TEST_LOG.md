@@ -617,8 +617,13 @@ predictions identical, accuracy 0.8453 matching `metrics.json`.**
 **Control check, the part that matters:** product mismatch is **22.5% of errors** against **14.9% of
 correct answers** (16.1% overall) — a real driver at roughly 1.5x the base rate, but **not** the
 explanation for the error pile, because the same defect sits in the correct answers. And
-low-information rows are **100% flagged by the gate** while everything else is 11.0%, so the
+low-information rows are **100% flagged by the gate** while everything else is 15.7%, so the
 escalation path is doing exactly its job.
+
+> **Corrected 2026-10-03.** This line originally read "everything else is 11.0%". That was wrong:
+> 151 of the 963 non-low-information holdout rows are errors, which is **15.7%**. The 11.0% figure
+> is not reachable from any slice, and it made the gate look far more selective than it is. The
+> overall 16.8% in `metrics.json` was always correct; only this sentence was wrong.
 
 **Verdict:** reporting-only. No model change. Turned "the model is 15.5% wrong" into "the model is
 wrong where the *input* is broken, and it knows which ones those are."
