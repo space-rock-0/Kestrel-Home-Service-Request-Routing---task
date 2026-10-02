@@ -12,7 +12,15 @@ SEPARATION_NEEDED = 0.03     # decision rule: model interval must sit this far a
 
 
 def pct(x, nd: int = 1):
-    return None if x is None else round(100 * x, nd)
+    """Percentage, or a visible placeholder when the metric is absent.
+
+    Returning None here used to leave the template's {{placeholder}} unresolved, and render_docs
+    writes unresolved placeholders through to output/ verbatim. One absent metric was therefore
+    enough to silently replace a section of the evidence pack with a literal "{{...}}" string --
+    which is exactly the failure this function now makes impossible. Every optional metric
+    degrades to an explicit "not measured" rather than destroying content.
+    """
+    return "not measured" if x is None else round(100 * x, nd)
 
 
 def inr(n) -> str:
