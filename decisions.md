@@ -515,6 +515,156 @@ interpreter is the correct one.
 
 ---
 
+---
+
+## D16 — Dependencies pinned to exact versions
+**Date:** 2026-10-02 · **Phase:** 4 (close-out) · **Status:** active
+
+**Decision:** `requirements.txt` and `requirements-dev.txt` now pin every package with `==` to the
+versions the project was built and tested against (pandas 3.0.6, numpy 2.5.3, scikit-learn 1.9.1,
+fastapi 0.142.2, pytest 9.1.1, and the rest).
+
+**Why:** `docs/BUILD.md` D14 requires it, and the deliverable's core promise is that it starts on a
+clean machine with `pip install -r requirements.txt` and nothing else. Every entry was previously
+`>=`, so an unpinned install resolves to whatever is newest on the day. This machine resolved to
+**pandas 3.0.6** — a very new major version — and it happens to work, but that is luck, not design.
+`docs/AGENT_TASK.md` step 14 (fresh clone, fresh venv) is precisely the test that would catch a
+breakage, and it cannot be trusted while the inputs float.
+
+**Rejected:** Leaving `>=` and relying on CI to catch it — CI runs on `push`, not at install time on
+someone else's machine, and the failure would surface as a broken demo rather than a red build.
+
+**Revisit if:** Upgrading deliberately. Re-run `pytest -q` and the full pipeline before trusting it.
+
+---
+
+## D17 — The policy beats the brief on publishing data: no `data/input/` in the repo
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** active — *user's call, revisitable in writing*
+
+**Decision:** `data/input/` is excluded from the repository. The trained model, `predictions.csv`,
+`metrics.json`, all code and all documents are committed.
+
+**Why:** Two instructions collide and cannot both be satisfied:
+
+- `docs/BUILD.md` Phase 13 and the brief: *"Public GitHub repo (**with data files**)"*
+- `ops-policy.pdf` p1 **§10**: *"Customer and operational data ... must not be published, uploaded
+  to public repositories or shared beyond the engagement team."*
+
+§10 is the client's own rulebook, it addresses this exact question, and it is more specific than the
+brief. The PII scan strengthens the case rather than weakening it: **0** names, phone numbers or
+email addresses, but **1,396** customer registration numbers (`reg no SR#####` — a 5-digit namespace
+distinct from the 6-digit `request_id`) embedded in request text. That is pseudonymous, not
+anonymous: it maps 1:1 to a customer.
+
+The user was asked directly and chose the policy. Recorded here so the reasoning survives.
+
+**Rejected:**
+- Commit the data as supplied — would breach §10.
+- Mask the registration numbers and commit the rest — partially satisfies both, but it produces a
+  repository that no longer reproduces the reported numbers, and a half-masked customer file is a
+  worse artefact than none.
+
+**Proof this costs nothing.** Verified by fresh clone: the repository contains **0** CSV data files,
+and the service still boots and answers `/api/v1/predict` with 99.8% confidence, because the model
+carries the learned routing and needs the data only to retrain. The client supplies `data/input/` at
+run time exactly as the project always did.
+
+**Revisit if:** The client confirms **in writing** that publishing is permitted. Then the `.gitignore`
+block is deleted and the data is committed as supplied.
+
+---
+
+## D18 — A misroute costs ₹565, and the ₹305 floor is published beside it
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** active
+
+**Decision:** The headline misroute cost is **₹565** = the policy's ₹305 transfer handling **plus**
+the ₹260 for the one extra customer contact a misroute generates. The transfer-only **₹305** figure
+is published alongside as a conservative floor.
+
+**Why:** `ops-policy.pdf` p1 §4 gives two numbers and `wrong_first_touch_rate` measures first-touch
+errors — which is precisely what the policy calls a *misrouted request*, and what it says generates
+both the transfer and the extra contact. So 565 is the all-in cost of the event being counted.
+
+Only the transfer cost would understate it; only the contact cost would overstate it. Publishing both
+means a reader can reject the aggressive number and still have an honest one.
+
+**The resulting arithmetic**, from `python -m kestrel run numbers --transfer-cost-inr 565`:
+
+```
+transfers avoided = (0.250 - 0.155) x 724 requests = 69
+transfer saving   = 69 x 565 = 38,985
+licence avoided   = 320,000 / 12 = 26,667
+net per month     = 26,667 + 38,985 - 0 = 65,652        -> 65,652 x 12 = 787,824 a year
+```
+
+Floor with ₹305: 69 × 305 = 21,045; net **₹47,712/month**.
+
+**Rejected:** ₹305 alone, because it ignores a cost the policy explicitly attaches to the same event.
+
+**Revisit if:** Kestrel's finance team says a transfer and an extra contact are not both caused by a
+misroute, or supplies a different rate.
+
+---
+
+## D19 — One policy rule enabled; the other six stay disabled and are reported
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** active
+
+**Decision:** Seven rules drafted from `ops-policy.pdf` §3 and the `handles` column of `teams.csv`,
+each measured against all 6,502 closed CRM rows. **Only `R-PAID-NOT-BILLING` is enabled.**
+
+| Rule | Matches | Agreement | Enabled |
+|---|---|---|---|
+| `R-PAID-NOT-BILLING` | 58 | **98.28%** | **yes** |
+| `R-RETURN-DAMAGED` | 839 | 91.90% | no |
+| `R-BILLING-PAYMENT` | 739 | 91.61% | no |
+| `R-WARRANTY-COVERAGE` | 714 | 90.90% | no |
+| `R-USAGE-ADVICE` | 688 | 89.68% | no |
+| `R-FAULT-NOT-CONSUMABLE` | 1,467 | 88.34% | no |
+| `R-CONSUMABLE-PART` | 596 | 88.26% | no |
+
+**Why:** `docs/BUILD.md` T11 sets the bar — a rule is switched on only if history agrees with it at
+≥95% on closed CRM rows, otherwise it is logged as a **policy-versus-practice conflict**. Six rules
+fail it by 3–7 points. That is a finding for Ritu, not a defect to hide: the written rules are too
+broad to run as automation, and Meenal should tighten them rather than ship them.
+
+**The enabled rule is redundant, and that is the honest finding.** Measured on the **validation**
+slice — never the holdout — it fires on 10 rows and changes **0** decisions, because the model
+already learned what the policy says. `artifacts/predictions.csv` is byte-identical before and
+after enabling it, confirmed with `cmp`.
+
+It is kept enabled anyway as a guard rather than an improvement, and the submission form says so
+rather than implying it raised the score.
+
+**A design inconsistency found while checking this:** rules are applied by `Router.route()` for
+single requests but **not** by `Router.route_frame()` or by the training-time prediction write. So a
+rule cannot affect `predictions.csv` at all. Harmless here (the rule changes nothing), but it means
+an enabled rule is not a way to influence the submission. Noted, not changed — changing it would
+alter predictions.csv this late.
+
+**Revisit if:** Meenal rewrites the policy rules more narrowly, or a future rule clears 95% *and*
+measurably improves validation.
+
+---
+
+## D20 — Memo decision A, with 16.8% escalation accepted
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** active — *user's call*
+
+**Decision:** Memo option **A** — a two-week shadow run alongside the bot, then switch the bot off
+for requests the router is confident about, with 16.8% of requests going to a person.
+
+**Why:** `docs/BUILD.md` §9 sets a numeric rule: choose A only if the model's accuracy interval sits
+at least 3 points above the bot's **and** the unsure share is within a limit the client sets.
+Measured: interval separation **4.92 points** (model low 82.4% vs bot high 77.5%) — clears the first
+condition. The second needs a human tolerance, which only the user can give. **16.8%** was accepted.
+
+`form_values.json` reached the same conclusion independently, against its default 30% limit:
+`decision_suggestion: "A"`.
+
+**Note:** option B stays *available*. 16.8% is a business tolerance, not a data finding — if support
+capacity is smaller than that, B is the honest answer and only the limit changes.
+
+---
+
 ## Note — `docs/BUILD.md` code blocks are not to be used
 
 `docs/AGENT_TASK.md` forbids extracting code from `BUILD.md`; its blocks are

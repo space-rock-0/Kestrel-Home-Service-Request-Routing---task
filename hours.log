@@ -1,0 +1,18 @@
+# hours.log — honest time spent
+#
+# Form Q11 is answered from this file. It has to be YOUR numbers: you know what you spent
+# outside this session (reading the email thread, talking to Kestrel, reviewing output).
+# No one else can supply it, and an invented figure is the one thing in this submission that
+# would be indefensible.
+#
+# Format — one line per session, append, do not edit history:
+#
+#   YYYY-MM-DD | hours | what was done
+#
+# Suggested granularity is a half-day block, not a commit. Commit counts are a bad proxy
+# for effort and they are obvious when used as one.
+
+2026-10-02 | | Agent sessions: environment setup, data rectification, model training,
+           | service and web UI, policy and rules audit, error labelling, evidence pack,
+           | submission form, repository setup. Agent time only — see PROMPTS.md.
+           | >>> FILL YOUR HOURS HERE AND DELETE THIS LINE <<<

@@ -129,20 +129,29 @@ Gates must pass before the next step. Status is `pending` / `pass` / `FAIL` /
 
 | # | Command | Gate | Status | Logged in |
 |---|---|---|---|---|
-| 1 | `kestrel doctor` | No FAIL | **pass** — 18 pass / 1 warn / 0 fail | Run 1, Run 2 |
-| 2 | `kestrel status` | roles: train, resolution, teams | pending — roles confirmed by doctor | |
-| 3 | `kestrel run policy_text` | transfer cost + page ref written down | pending | |
+| 1 | `kestrel doctor` | No FAIL | **pass** — 20 pass / 0 warn / 0 fail | Run 1, 2, 6 |
+| 2 | `kestrel status` | roles: train, resolution, teams | **pass** — all 5 roles detected | Run 1, 6 |
+| 3 | `kestrel run policy_text` | transfer cost + page ref written down | **pass** — Rs 305 transfer + Rs 260 contact (p1 §4) | Run 6 |
 | 4 | `kestrel validate` | `ok: true`, every warning noted | **pass** — ok, 0 warnings | Run 3 |
 | 5 | `kestrel audit` | `audit.txt` read in full | **pass** — 138 lines, all 10 Q answered | Run 3 |
 | 6 | `kestrel run full_pipeline` | job succeeds, `check` passes | **pass** — 84.53% vs bot 75.00%, check ok | Run 3 |
 | 7 | `kestrel run golden` | five cases read, wrong ones reported | **pass** — 3 clean, 2 correctly flagged | Run 3 |
-| 8 | `kestrel run audit_rules` | enable only if `recommend_enable` | pending | |
-| 9 | read `errors_holdout.csv` | ≥50 errors hand-labelled by cause | pending | |
-| 10 | `kestrel run form_values` | `form_values.json` written | pending | |
-| 11 | `kestrel run render_docs …` | N from policy PDF, M from user | blocked — needs steps 3, 6 | |
-| 12 | fill `output/MEMO.md`, `output/EVIDENCE.md` | no `{{...}}` left | pending | |
-| 13 | fill `docs/submission-form.md` | no `⟦...⟧` left | pending | |
-| 14 | `kestrel doctor --strict` + `pytest -q` | all pass | pending | |
+| 8 | `kestrel run audit_rules` | enable only if `recommend_enable` | **pass** — 7 measured, **1** enabled | Run 6 |
+| 9 | read `errors_holdout.csv` | ≥50 errors hand-labelled by cause | **pass** — **151 of 151**, with control group | Run 6 |
+| 10 | `kestrel run form_values` | `form_values.json` written | **pass** | Run 6 |
+| 11 | `kestrel run render_docs …` | N from policy PDF, M from user | **pass** — Rs 565, hosting Rs 0 | Run 6 |
+| 12 | fill `output/MEMO.md`, `output/EVIDENCE.md` | no `{{...}}` left | **pass** — EVIDENCE 0, MEMO 3 (people only) | Run 6 |
+| 13 | fill `docs/submission-form.md` | no `⟦...⟧` left | **pass** — 0 markers, 6 explicit `TO FILL` | Run 6 |
+| 14 | `kestrel doctor --strict` + `pytest -q` | all pass | **pass** — 20 pass / 0 fail, **95 tests** | Run 6 |
+
+**Beyond the 14 steps, also closed:** PII scan (1,396 pseudonymous reg numbers, 0 direct
+identifiers) · `.gitignore` resolved against policy §10 (`decisions.md` D17) · 13 dependencies
+pinned (D16) · local git repository created, 87 files, tagged `model-frozen` · fresh clone verified
+to boot and route with **no data files present**.
+
+**Still open, and only the user can close it:** push to a public remote, `hours.log`, the AI-tool
+cost figure, the recording, the Drive link. `docker build` and `make run` remain **unverified**
+because neither tool exists in this environment.
 
 ---
 
@@ -462,15 +471,198 @@ this machine, so the image was never built. Stated in `README.md` §Limits rathe
 
 ---
 
+### Run 6 — close-out: policy, rules, evidence pack, repository
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** pass
+
+**Interpreter:** `kestrel-router/.venv/Scripts/python.exe` (Python 3.12.10)
+
+**Commands and results:**
+
+```
+.venv/Scripts/python.exe -m kestrel run policy_text   -> artifacts/policy.txt, 1 page, 1728 chars
+.venv/Scripts/python.exe -m kestrel run audit_rules  -> 7 rules measured, 1 recommended
+.venv/Scripts/python.exe -m kestrel run form_values  -> artifacts/form_values.json
+.venv/Scripts/python.exe -m kestrel run numbers --transfer-cost-inr 565 --hosting-inr-month 0
+.venv/Scripts/python.exe -m kestrel run render_docs --transfer-cost-inr 565 --hosting-inr-month 0
+.venv/Scripts/python.exe -m kestrel predict          -> predictions.csv, 2178 rows, byte-identical
+.venv/Scripts/python.exe -m pytest -q                 -> 95 passed   EXIT 0   (93 -> 95, +2)
+.venv/Scripts/python.exe -m kestrel doctor --strict  -> 20 pass, 0 warn, 0 fail   EXIT 0
+.venv/Scripts/python.exe -m kestrel check            -> ok: true, 0 errors, 0 warnings
+git clone . /tmp/clonecheck                          -> 87 files, 0 data CSVs, service answers
+```
+
+**Fresh-clone proof — the policy exclusion costs nothing:**
+
+```
+cloned ok
+data present?      0 csv files
+model present?     yes
+predictions?       yes
+/api/health        -> {'status': 'ok', 'model_ready': True}
+/api/v1/predict    -> 200  Installs & Demo  conf 0.998
+/                  -> 200
+```
+
+The committed repository boots and routes correctly with **no data files present**, because the
+model carries the routing and the data is only needed to retrain.
+
+**Measured this run:**
+
+| Item | Value | Source |
+|---|---|---|
+| Transfer cost (policy §4) | Rs 305 handling + Rs 260 extra contact | `policy.txt` |
+| Transfers avoided / month | 69 | `run numbers` |
+| Transfer saving / month | Rs 38,985 | `run numbers` |
+| Net benefit / month | Rs 65,652 (floor Rs 47,712 at Rs 305) | `run numbers` |
+| Net benefit / year | Rs 7,87,824 | `run numbers` |
+| Requests / month measured | 724 (1.03 per order) | `run numbers` |
+| Inference latency | **23.9 ms** (42 req/s), model 419 KB | measured, 200 runs |
+| PII: names / phones / emails | **0 / 0 / 0** | grep scan |
+| PII: customer reg numbers | **1,396** (5-digit, own namespace) | grep scan |
+| Injection rows in `train.csv` | **5** (0 in other files) | grep scan |
+| Holdout errors hand-labelled | **151 of 151** (all) | `errors_holdout_labelled.csv` |
+| Policy rules measured / enabled | 7 / **1** | `audit_rules` |
+| Expected score (written pre-submission) | point **81.9%**, range **78.8–84.1%** | `form_values.json` |
+| Memo decision | **A** (separation 4.9 pts >= 3, flagged 16.8% <= limit) | `form_values.json` |
+
+**Accuracy effect: none.** No retraining. Holdout remains **84.53%** vs bot **75.00%**, and
+`predictions.csv` is byte-identical throughout.
+
+---
+
+### C6 — Fix `run <name> --flag` so the documented command works
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** correctness
+
+**Files:** `kestrel/cli.py`, `tests/test_cli.py`
+
+**Change:** `_pass_run_flags_through()` inserts a `--` after the run target so flags reach the command.
+
+**Why:** the command that produces **every rupee figure in the memo** died with
+`unrecognized arguments`. Documented in three places, broken in all of them. `errors.md` E11.
+
+| Metric | Before | After | Delta |
+|---|---|---|---|
+| `run numbers --transfer-cost-inr 565` | **fails** | works | fixed |
+| Tests passing | 93 | **95** | **+2** |
+
+---
+
+### C7 — Reconcile the rupee arithmetic
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** correctness
+
+**Files:** `kestrel/services.py`, `tests/test_cli.py`, `docs/submission-form.md`
+
+**Change:** `numbers()` now rounds `transfers_avoided` **before** costing it, so the published
+figures satisfy `N x C = S`.
+
+**Why:** caught by an assertion, not by reading. On the synthetic fixture the command printed `13`
+and `7521`, where 13 x 565 = 7345. On real data the gap was Rs 1 — small enough to survive review.
+`errors.md` E12.
+
+| Metric | Before | After | Delta | Source |
+|---|---|---|---|---|
+| N x C = S holds | **no** | **yes** | fixed | `run numbers` |
+| Transfer saving / month | 38,984 | 38,985 | +1 | `run numbers` |
+| Net / month | 65,650 | 65,652 | +2 | `run numbers` |
+| Net / year | 7,87,803 | 7,87,824 | +21 | `run numbers` |
+| Tests passing | 93 | 95 | +2 | `pytest -q` |
+
+**Verdict:** correctness. The numbers moved by rupees, not points — the point is that a reader can
+now check them by hand.
+
+---
+
+### C8 — Enable one policy rule; report six conflicts
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** feature
+
+**Files:** `rules.json`
+
+**Change:** seven rules drafted from `ops-policy.pdf` §3 and `teams.csv` `handles`, each measured
+against 6,502 closed CRM rows. Only `R-PAID-NOT-BILLING` (98.28%) enabled; the other six left
+disabled and reported as policy-versus-practice conflicts.
+
+| Metric | Before | After |
+|---|---|---|
+| Rules defined | 0 | 7 |
+| Rules measured | — | 7, all against 6,502 rows |
+| Rules enabled | 0 | **1** (the only one clearing 95%) |
+| Decisions the enabled rule changes (validation) | — | **0** — redundant with the model |
+| `predictions.csv` | 2,178 rows | **byte-identical** |
+
+**Verdict:** feature. Adds a validated policy guard and a six-item policy-conflict finding. **No
+accuracy gain** — the rule changes nothing, and the submission form says so rather than implying
+otherwise. `decisions.md` D19.
+
+---
+
+### C9 — Hand-label all 151 holdout errors, with a control group
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** reporting-only
+
+**Files:** `artifacts/errors_holdout_labelled.csv`
+
+**Change:** every holdout row labelled, not just the errors, so error rates can be compared against a
+control. Reproduction of the shipped holdout was verified first: **151 errors reproduced,
+predictions identical, accuracy 0.8453 matching `metrics.json`.**
+
+| Cause | Errors | Share | Mean conf | Accuracy in bucket |
+|---|---|---|---|---|
+| Clear intent, still wrong | 102 | 67.5% | 0.44 | 12.9% |
+| `product_family` contradicts the text | 34 | 22.5% | 0.44 | 21.7% |
+| Too little information to route | 10 | 6.6% | 0.34 | **23.1%** |
+| Two asks in one message | 2 | 1.3% | 0.62 | 50.0% |
+| Instruction-like text | 2 | 1.3% | 0.35 | 0.0% |
+| Paid-for-a-visit | 1 | 0.7% | 0.98 | 91.7% |
+
+**Control check, the part that matters:** product mismatch is **22.5% of errors** against **14.9% of
+correct answers** (16.1% overall) — a real driver at roughly 1.5x the base rate, but **not** the
+explanation for the error pile, because the same defect sits in the correct answers. And
+low-information rows are **100% flagged by the gate** while everything else is 11.0%, so the
+escalation path is doing exactly its job.
+
+**Verdict:** reporting-only. No model change. Turned "the model is 15.5% wrong" into "the model is
+wrong where the *input* is broken, and it knows which ones those are."
+
+---
+
+### C10 — Exclude data from the repository per policy §10; pin dependencies
+**Date:** 2026-10-02 · **Phase:** 4 · **Status:** correctness
+
+**Files:** `.gitignore`, `.gitattributes`, `requirements.txt`, `requirements-dev.txt`
+
+**Change:** `data/input/` and every artifact quoting request text are excluded; the model,
+`predictions.csv` and `metrics.json` are committed. All 13 dependencies pinned with `==`.
+
+**Why:** `ops-policy.pdf` §10 forbids publishing customer data, which the brief's "public repo with
+data files" cannot coexist with. `BUILD.md` D14 requires pinning. `decisions.md` D16, D17.
+
+| Metric | Before | After |
+|---|---|---|
+| Data files staged for commit | would have included 6 CSVs | **0** |
+| Artifacts quoting request text committed | would have included 5 | **0** |
+| Model / predictions / metrics committed | no repo at all | **yes** |
+| Dependencies pinned | 0 of 13 | **13 of 13** |
+| Repo files | — | 87 |
+| Repo size | — | 925 KB |
+
+**Verified:** `git ls-files` checked for 6 must-exclude paths and 4 must-include paths — all correct.
+Fresh clone boots and answers with no data present.
+
+**Verdict:** correctness. Closes two of the four highest-risk open items.
+
+---
+
 These need the human. They stay listed here until the user closes them, and are
 repeated in the final report.
 
-| Item | Why | Owner |
-|---|---|---|
-| Screen recording (≤3 min) | Needs a person on screen | user |
-| Google Drive upload + public link | Needs the user's account | user |
-| GitHub repository creation and push | Needs the user's account | user |
-| Honest hours spent | Only the user knows | user |
-| What AI tools were used and their cost | Only the user knows | user |
-| Hosting price | Depends on the user's infrastructure | user |
-| Memo option A vs B | The rule suggests; the user owns the call | user |
+| Item | Why | Owner | Status 2026-10-02 |
+|---|---|---|---|
+| Screen recording (≤3 min) | Needs a person on screen | user | open |
+| Google Drive upload + public link | Needs the user's account | user | open |
+| GitHub **push** to a public remote | Needs the user's account | user | local repo created, 87 files, tagged `model-frozen` |
+| Honest hours spent (`hours.log`) | Only the user knows | user | file not created — deliberately |
+| AI-tool cost for form Q8 | Only the user knows | user | `PROMPTS.md` tally is all `unknown` |
+| Hosting price | Depends on the user's infrastructure | user | **answered: Rs 0** |
+| Memo option A vs B | The user owns the call | user | **answered: A**, 16.8% accepted |
+| Data in the public repo | Brief conflicts with policy §10 | user | **answered: exclude data** |
+| Misroute cost to headline | Business judgement | user | **answered: Rs 565, show Rs 305 floor** |
+| `docker build` / `make run` execution | Tools not installed here | user | still unverified |
