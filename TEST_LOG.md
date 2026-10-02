@@ -143,6 +143,7 @@ Gates must pass before the next step. Status is `pending` / `pass` / `FAIL` /
 | 12 | fill `output/MEMO.md`, `output/EVIDENCE.md` | no `{{...}}` left | **pass** — EVIDENCE 0, MEMO 3 (people only) | Run 6 |
 | 13 | fill `docs/submission-form.md` | no `⟦...⟧` left | **pass** — 0 markers, 6 explicit `TO FILL` | Run 6 |
 | 14 | `kestrel doctor --strict` + `pytest -q` | all pass | **pass** — 20 pass / 0 fail, **95 tests** | Run 6 |
+| — | headroom search, validation only | see Run 7 | **negative result** — frozen model kept | Run 7 |
 
 **Beyond the 14 steps, also closed:** PII scan (1,396 pseudonymous reg numbers, 0 direct
 identifiers) · `.gitignore` resolved against policy §10 (`decisions.md` D17) · 13 dependencies
@@ -648,6 +649,78 @@ data files" cannot coexist with. `BUILD.md` D14 requires pinning. `decisions.md`
 Fresh clone boots and answers with no data present.
 
 **Verdict:** correctness. Closes two of the four highest-risk open items.
+
+---
+
+### Run 7 — headroom search on an isolated branch (VALIDATION ONLY)
+**Date:** 2026-10-02 · **Phase:** exploratory · **Status:** pass — **negative result**
+
+**Branch:** `explore/model-headroom` · `master` untouched, working tree clean
+
+**Discipline:** identical time-ordered split to `train.py`. Fit on `dev`, scored on `val`,
+selection metric = validation macro-F1, exactly as the frozen run used. **The holdout slice was
+never constructed**, so nothing here has seen it.
+
+**17 configurations, selection metric = validation macro-F1:**
+
+| Experiment | macro-F1 | Δ vs frozen |
+|---|---|---|
+| A0 frozen baseline | 0.8575 | — |
+| **B1 LinearSVC 0.5** | **0.8600** | **+0.0025** |
+| D1 wide + LinearSVC | 0.8600 | +0.0025 |
+| C1/C3 cross tokens | 0.8589 | +0.0014 |
+| B5 Calibrated LR | 0.8582 | +0.0007 |
+| C2 mismatch-aware meta | 0.8585 | +0.0010 |
+| D3 wide + cross | 0.8577 | +0.0002 |
+| A1 wider words 1–3 | 0.8575 | −0.0000 |
+| A3 wider chars 2–6 | 0.8572 | −0.0003 |
+| A4 both wide, 200k | 0.8558 | −0.0017 |
+| D4 wide+cross+LinearSVC | 0.8557 | −0.0018 |
+| A2 min_df=1 | 0.8524 | −0.0051 |
+| B2 LinearSVC 1.0 | 0.8516 | −0.0059 |
+| B4 ComplementNB | 0.8392 | −0.0184 |
+| B3 SGD modified_huber | 0.8338 | −0.0237 |
+
+**Then the fair paired comparison.** The +0.0025 sweep result was re-tested by substituting
+LinearSVC into the *actual* `make_pipeline` — same vectorisers, same 60k char cap — so the two models
+differ only in the classifier:
+
+```
+frozen     accuracy 0.8595   macro-F1 0.8575
+LinearSVC  accuracy 0.8523   macro-F1 0.8494
+delta      -0.72 points
+
+predictions changed      : 31 of 975
+  LinearSVC right, frozen wrong : 5
+  frozen right, LinearSVC wrong : 12
+exact two-sided binomial p      : 0.1435   NOT significant
+1 standard error on accuracy    : 1.11 points
+```
+
+**Result: the +0.0025 was an artefact of the sweep, not a gain.** With the vectorisers held
+identical the challenger is 0.72 points *worse*, and the difference is 0.65 standard errors with
+p = 0.14. Nothing here is distinguishable from noise.
+
+**What the search actually established — three things, all useful:**
+
+1. **The vectoriser is not the bottleneck.** Widening word n-grams to 1–3, widening char n-grams to
+   2–6, lifting `min_df` to 1 and removing the 60k cap all scored **flat or worse**. The frozen
+   representation already extracts what is in the text.
+2. **The classifier family does not matter.** Logistic regression, calibrated LR and LinearSVC are
+   equivalent within noise. SGD and ComplementNB are clearly worse (−2 to −4 points).
+3. **The gains do not stack.** Cross tokens, mismatch-aware meta and wider n-grams each moved
+   validation by ~0.1 point in isolation and did not combine.
+
+**The 2–4 points of headroom I speculated about do not exist in this direction.** The ceiling is
+set by the data, not the model — consistent with the error taxonomy, where the failure causes are
+`product_family` contradicting the customer's words (16.1% of rows) and `final_team` reflecting who
+happened to close the request.
+
+**Verdict:** reporting-only. **The frozen model stays.** Switching to a "better" model on a 0.25-point
+validation difference that fails a significance test would be tuning on noise, and it would
+invalidate the pre-submission expected-score statement for no measurable gain.
+
+**C11 — No model change. The frozen submission is kept.**
 
 ---
 

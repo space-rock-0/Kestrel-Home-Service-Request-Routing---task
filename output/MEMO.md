@@ -1,6 +1,6 @@
 # Memo to Ritu Deshpande
 
-**From:** {{author}}  **Re:** Can we switch the routing bot off?
+**From:** {{Sagi Siddhartha}}  **Re:** Can we switch the routing bot off?
 
 **The decision.** Rule-based suggestion: **A** (model interval low 82.4% is 4.9 points above the bot's interval high 77.5% and 16.8% of requests go to a person (limit 30.0%)). Keep the matching paragraph, delete the other.
 
