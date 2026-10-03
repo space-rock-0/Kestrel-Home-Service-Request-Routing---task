@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-10-02 21:21:02",
+  "trained_at": "2026-10-03 10:56:37",
   "input_files": {
     "resolution": "resolution_log.csv",
     "sample_submission": "sample_submission.csv",
@@ -34,24 +34,24 @@
   "validation": {
     "n": 975,
     "accuracy": 0.8595,
-    "macro_f1": 0.8575
+    "macro_f1": 0.8566
   },
   "gate_from_validation": {
     "tau": 0.55,
-    "coverage": 0.857,
-    "accuracy_kept": 0.9545
+    "coverage": 0.859,
+    "accuracy_kept": 0.9523
   },
   "cv_rolling": {
     "n_splits": 4,
-    "mean_accuracy": 0.8385,
+    "mean_accuracy": 0.8387,
     "min_accuracy": 0.8206,
-    "max_accuracy": 0.8515,
+    "max_accuracy": 0.8524,
     "mean_macro_f1": 0.8363,
     "folds": [
       {
         "n": 1137,
         "accuracy": 0.8206,
-        "macro_f1": 0.818,
+        "macro_f1": 0.8175,
         "train_rows": 4320,
         "test_rows": 1137,
         "from": "2025-10-01",
@@ -59,8 +59,8 @@
       },
       {
         "n": 1138,
-        "accuracy": 0.8506,
-        "macro_f1": 0.8471,
+        "accuracy": 0.8489,
+        "macro_f1": 0.8449,
         "train_rows": 5457,
         "test_rows": 1138,
         "from": "2025-11-18",
@@ -68,8 +68,8 @@
       },
       {
         "n": 1138,
-        "accuracy": 0.8313,
-        "macro_f1": 0.8297,
+        "accuracy": 0.833,
+        "macro_f1": 0.8307,
         "train_rows": 6595,
         "test_rows": 1138,
         "from": "2026-01-03",
@@ -77,8 +77,8 @@
       },
       {
         "n": 1138,
-        "accuracy": 0.8515,
-        "macro_f1": 0.8506,
+        "accuracy": 0.8524,
+        "macro_f1": 0.852,
         "train_rows": 7733,
         "test_rows": 1138,
         "from": "2026-02-22",
@@ -89,11 +89,11 @@
   "holdout": {
     "model": {
       "n": 976,
-      "accuracy": 0.8453,
-      "macro_f1": 0.8438,
+      "accuracy": 0.8432,
+      "macro_f1": 0.842,
       "accuracy_ci95": [
-        0.8238,
-        0.8668
+        0.8217,
+        0.8648
       ]
     },
     "bot_vs_final": {
@@ -108,24 +108,24 @@
     "model_agreement_with_bot_label": {
       "n": 976,
       "accuracy": 0.7859,
-      "macro_f1": 0.7964
+      "macro_f1": 0.7966
     },
-    "model_accuracy_seen_text": 0.822,
-    "model_accuracy_unseen_text": 0.8485,
+    "model_accuracy_seen_text": 0.8305,
+    "model_accuracy_unseen_text": 0.845,
     "share_unseen_text": 0.8791,
     "by_month_accuracy": {
       "2026-05": 0.864,
-      "2026-06": 0.8381
+      "2026-06": 0.8352
     },
     "avg_transfers_logged": 0.3842,
     "wrong_first_touch_rate": {
       "bot": 0.25,
-      "model": 0.1547
+      "model": 0.1568
     },
     "gate_on_holdout": {
-      "share_flagged_for_human": 0.168,
-      "accuracy_when_not_flagged": 0.9569,
-      "accuracy_when_flagged": 0.2927
+      "share_flagged_for_human": 0.1639,
+      "accuracy_when_not_flagged": 0.9571,
+      "accuracy_when_flagged": 0.2625
     }
   },
   "per_class_holdout": {
@@ -142,27 +142,27 @@
       "support": 102.0
     },
     "Installs & Demo": {
-      "precision": 0.8289473684210527,
-      "recall": 0.84,
-      "f1-score": 0.8344370860927153,
+      "precision": 0.8278145695364238,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.8305647840531561,
       "support": 150.0
     },
     "Product Advice": {
-      "precision": 0.8114754098360656,
+      "precision": 0.8048780487804879,
       "recall": 0.7795275590551181,
-      "f1-score": 0.7951807228915663,
+      "f1-score": 0.792,
       "support": 127.0
     },
     "Repairs": {
-      "precision": 0.8178294573643411,
+      "precision": 0.8146718146718147,
       "recall": 0.9336283185840708,
-      "f1-score": 0.871900826446281,
+      "f1-score": 0.8701030927835052,
       "support": 226.0
     },
     "Returns & Replacement": {
-      "precision": 0.8832116788321168,
-      "recall": 0.7857142857142857,
-      "f1-score": 0.8316151202749141,
+      "precision": 0.8823529411764706,
+      "recall": 0.7792207792207793,
+      "f1-score": 0.8275862068965517,
       "support": 154.0
     },
     "Warranty Claims": {
@@ -171,31 +171,31 @@
       "f1-score": 0.8326180257510729,
       "support": 119.0
     },
-    "accuracy": 0.8452868852459017,
+    "accuracy": 0.8432377049180327,
     "macro avg": {
-      "precision": 0.8520354748472683,
-      "recall": 0.8378972467970235,
-      "f1-score": 0.8437920460355842,
+      "precision": 0.8503573976632142,
+      "recall": 0.8360172220598558,
+      "f1-score": 0.8419520928966894,
       "support": 976.0
     },
     "weighted avg": {
-      "precision": 0.846972163317861,
-      "recall": 0.8452868852459017,
-      "f1-score": 0.8446157617585232,
+      "precision": 0.8450729240409829,
+      "recall": 0.8432377049180327,
+      "f1-score": 0.8425547601384227,
       "support": 976.0
     }
   },
   "test": {
     "rows": 2178,
     "predicted_distribution": {
-      "Repairs": 567,
-      "Installs & Demo": 314,
+      "Repairs": 558,
+      "Installs & Demo": 320,
       "Returns & Replacement": 300,
-      "Warranty Claims": 272,
-      "Product Advice": 269,
-      "Billing": 259,
-      "Filters & Consumables": 197
+      "Product Advice": 270,
+      "Warranty Claims": 270,
+      "Billing": 261,
+      "Filters & Consumables": 199
     },
-    "flagged_share": 0.1547
+    "flagged_share": 0.1561
   }
 }

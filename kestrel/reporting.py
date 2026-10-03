@@ -103,6 +103,12 @@ def form_values(metrics: dict, flagged_limit: float = FLAGGED_LIMIT) -> dict:
             "Repairs (23.4% of requests), Installs & Demo (14.7%) and Returns & Replacement (14.2%) "
             "-- the same three in that order when ranked by hand-offs instead"
         ),
+        # Owner slots. Deliberately ABSENT unless a human has named someone. Supplying the
+        # literal string "{{owner_it}}" would make render_dir report the slot as resolved when
+        # nothing had been resolved, which is a lie in an audit trail. Omitting the key leaves
+        # the placeholder visible AND reported as unresolved, which is both true and useful.
+        **({} if not os.environ.get("KESTREL_OWNER_IT") else {"owner_it": os.environ["KESTREL_OWNER_IT"]}),
+        **({} if not os.environ.get("KESTREL_OWNER_SERVICE") else {"owner_service": os.environ["KESTREL_OWNER_SERVICE"]}),
     }
 
 

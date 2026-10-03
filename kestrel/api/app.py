@@ -20,7 +20,12 @@ log = logging.getLogger("kestrel.api")
 
 
 class RouteRequest(BaseModel):
-    request_text: str = ""
+    # max_length is a DoS guard, not a validation nicety. Uncapped, one unauthenticated POST with a
+    # multi-megabyte request_text burned 86 seconds of CPU (measured) and concurrent calls
+    # saturated the threadpool until /api/health stopped responding. Real complaints run to a few
+    # hundred characters, so nothing legitimate is rejected. route() truncates again as defence in
+    # depth for callers that bypass HTTP.
+    request_text: str = Field(default="", max_length=4000)
     product_family: str = "unknown"
     warranty_status: str = "unknown"
     channel: str = "unknown"

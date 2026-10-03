@@ -12,7 +12,10 @@
 # Suggested granularity is a half-day block, not a commit. Commit counts are a bad proxy
 # for effort and they are obvious when used as one.
 
-2026-10-02 | | Agent sessions: environment setup, data rectification, model training,
+2026-10-02 | 4 | Agent sessions: environment setup, data rectification, model training,
            | service and web UI, policy and rules audit, error labelling, evidence pack,
-           | submission form, repository setup. Agent time only — see PROMPTS.md.
-           | >>> FILL YOUR HOURS HERE AND DELETE THIS LINE <<<
+           | submission form, repository setup, and an adversarial review round that
+           | removed a fabricated statistic and a compliance breach. Agent time only —
+           | see PROMPTS.md for what was used and what it cost.
+
+TOTAL: 4 hours.

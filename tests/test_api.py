@@ -142,7 +142,10 @@ def test_predict_v1_accepts_a_raw_test_row_verbatim(client):
     across the test set, and `created_at_ist` would leak the time split. Both are accepted, ignored."""
     row = {"request_id": "SR000001", "created_at_ist": "2026-07-01 00:31", "channel": "chat",
            "product_family": "air fryer", "warranty_status": "in_warranty",
-           "request_text": "display of air fryer gone blank pls call back", "source": "crm"}
+           # Synthetic, not a real complaint. An earlier draft used a line copied verbatim from
+           # test_unlabelled.csv; the request_id had been made synthetic but the text had not.
+           # A public repository should not carry customer wording, even with no identifier beside it.
+           "request_text": "screen of my air fryer has gone blank pls call back", "source": "crm"}
     j = client.post("/api/v1/predict", json=row).json()
     assert j["request_id"] == "SR000001"
     assert j["predicted_team"] in client.get("/api/meta").json()["teams"]

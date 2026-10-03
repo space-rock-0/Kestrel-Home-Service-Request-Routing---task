@@ -18,8 +18,8 @@ Generated {{trained_at}}. Every number comes from `artifacts/metrics.json`.
 Difference: {{delta_pts}} points. Gap between intervals: {{ci_separation_pts}} points.
 
 **Paired test (McNemar).** Both systems predict the same {{n_holdout}} rows, so the paired test is the
-right one. Of the 129 rows where they disagree, the model is right on **111** and the bot on **18**.
-Exact two-sided binomial **p = 1.5e-17**. The interval comparison above is valid but understated this
+right one. Of the 127 rows where they disagree, the model is right on **109** and the bot on **18**.
+Exact two-sided binomial **p = 4.6e-17**. The interval comparison above is valid but understated this
 by about sixteen orders of magnitude. The 18 regressions are the more useful number — those are the
 cases to inspect before trusting the router.
 
@@ -30,7 +30,7 @@ Measured rather than asserted — training the identical pipeline on `team_label
 unseen holdout data. Fitting it *including* the holdout rows gives 87.50%, which is memorisation of
 the bot's labels rather than routing skill, and is what a careless evaluation would report.
 
-**Ceiling: how much of the remaining 15.5% is signal.** This submission previously asserted the
+**Ceiling: how much of the remaining 15.7% is signal.** This submission previously asserted the
 ceiling was set by the data without measuring it. It can be measured:
 
 | | |

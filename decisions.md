@@ -170,7 +170,13 @@ own; no code change needed.
 ---
 
 ## D6 — `.gitignore` contradicts the submission requirements; fix at repo-init time, not now
-**Date:** 2026-10-02 · **Phase:** 0 (setup) · **Status:** active — *deferred to step 13*
+> **SUPERSEDED by D17 (2026-10-03).** This entry instructed that `data/input/` be committed
+> because the brief appeared to require it. It does not: the brief says *"Do not publish it.
+> Use a private repository (share access with the address in your invitation) or send a zip.
+> A public repository containing the data files is recorded against the submission."*
+> Left as `active`, this contradicted D17 and an auditor reading the trail in order hit two
+> opposite instructions. Status corrected below.
+**Date:** 2026-10-02 · **Phase:** 0 (setup) · **Status:** superseded by D17 — *closed*
 
 **Decision:** Leave `.gitignore` alone for now. When the public repository is
 created (step 13), amend it so `artifacts/model.joblib` and `data/input/*` are

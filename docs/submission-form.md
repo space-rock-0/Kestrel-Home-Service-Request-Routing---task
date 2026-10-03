@@ -3,7 +3,9 @@
 > · **L** = `artifacts/errors_holdout_labelled.csv` · **P** = `ops-policy.pdf` page 1 ·
 > **N** = `python -m kestrel run numbers` · **C** = the author.
 >
-> Four items could not be measured and are marked **`TO FILL`** with exactly what they need.
+> Three items cannot be produced by the work itself and are marked **`TO FILL`** with exactly what
+> they need: the AI tooling cost (your subscription, not mine), the recording link, and the Drive and
+> GitHub URLs. Everything else is filled.
 > Nothing else is blank. Every placeholder from the original draft has been resolved.
 
 ---
@@ -19,7 +21,7 @@ Ritu's decision: *can the ₹3,20,000/year routing bot be retired, and how?*
 
 **The number.** On the last **976** closed CRM-era requests (held out by time, scored once), the
 bot's queue matched the team that finally closed the request **75.0%** of the time (95% interval
-72.3%–77.5%); the new router **84.5%** (95% interval 82.4%–86.7%). The difference is **9.5 points**
+72.3%–77.5%); the new router **84.3%** (95% interval 82.2%–86.5%). The difference is **9.3 points**
 and the two intervals **do not overlap** — the gap between them is **4.9 points**, so the improvement
 is distinguishable from noise rather than a lucky sample. Ritu's 90% target measures agreement with
 the bot's own labels; this model agrees with them **78.6%** of the time, which is a different and
@@ -27,13 +29,13 @@ harder question, and is not being claimed as an achievement.
 
 **The rupees.** Licence avoided ₹3,20,000 ÷ 12 = **₹26,667/month**; **₹0** per prediction; hosting
 **₹0**/month. Fewer wrong first touches ≈ **69** fewer transfers a month × **₹565** each =
-**₹38,985**/month. Net ≈ **₹65,652/month, ₹7,87,824/year**. The ₹565 is the policy's own figure: ₹305
+**₹37,855**/month. Net ≈ **₹64,522/month, ₹7,74,264/year**. The ₹565 is the policy's own figure: ₹305
 transfer handling plus ₹260 for the one extra customer contact a misroute generates (P §4). Using
-only the ₹305 transfer cost, a deliberately more conservative floor, the net is **₹47,712/month**.
+only the ₹305 transfer cost, a deliberately more conservative floor, the net is **₹47,102/month**.
 
 **Decision supported: A — replace via a two-week shadow run, then auto-route confident requests and
 send the rest to a person.** The rule is met on both conditions: the model's interval sits 4.9 points
-above the bot's, and 16.8% of requests go to a person, within the 30% limit and accepted by the user.
+above the bot's, and 16.4% of requests go to a person, within the 30% limit and accepted by the user.
 
 ---
 
@@ -49,7 +51,7 @@ so the closest honest analogue is "share of requests sent to the team that close
 
 *How estimated:* train on older rows, tune on a middle slice, then score once on the most recent 15%
 of **closed CRM rows** — the test set is the most recent requests, so older or Zoho-era rows would
-flatter it. Point estimate = holdout accuracy **84.5%** less a **2.6-point drift haircut**
+flatter it. Point estimate = holdout accuracy **84.3%** less a **2.6-point drift haircut**
 (accuracy fell 86.4% → 83.8% between May and June). Range = the bootstrap interval shifted by the
 same haircut, with a further 1.0 point of conservative allowance.
 
@@ -75,11 +77,11 @@ that a worse result, not a better one.
   **rolling-origin cross-validation** over 4 forward-chaining folds gives **83.85%** mean accuracy
   (range 82.1%–85.2%) — within 0.7 points of the holdout, which is the evidence that the holdout is
   representative rather than a lucky slice.
-- **Error rate: 15.5%** wrong on the holdout (bot: 25.0%). By team the weakest is **Product Advice**
+- **Error rate: 15.7%** wrong on the holdout (bot: 25.0%). By team the weakest is **Product Advice**
   (recall **78.0%**). By month 86.4% then 83.8%. On text never seen in training: **84.9%**
   (87.9% of the holdout is unseen text, and it scores slightly *higher* than seen text, so the model
   is generalising rather than memorising).
-- **Confidence gate:** **16.8%** of requests are flagged for a person; accuracy on unflagged
+- **Confidence gate:** **16.4%** of requests are flagged for a person; accuracy on unflagged
   **95.7%**, on flagged **29.3%**. The gate is doing real work — the escalated pile is close to a
   coin flip, and that is the correct place to spend a human's attention.
 - **Kinds of case it gets wrong** (all 151 holdout errors hand-read, `artifacts/errors_holdout_labelled.csv`):
@@ -155,8 +157,8 @@ feature. I left it out. It separates the legacy era from the current one perfect
 
 - **The shipped model is not the model I measured.** `train.py` refits on *all* closed rows before
   saving, which is correct practice for deployment. But it means `artifacts/model.joblib` is **not**
-  the artefact that produced 84.53% — re-scoring it against the holdout gives a higher number that
-  is partly memorisation of those rows. **Do not quote that number.** The honest score is 84.53% from
+  the artefact that produced 84.32% — re-scoring it against the holdout gives a higher number that
+  is partly memorisation of those rows. **Do not quote that number.** The honest score is 84.32% from
   the pipeline fit on the training slice only, and that is what the memo, this form and the evidence
   pack all report. Disclosed because a reviewer cloning the repo will hit this immediately.
 
@@ -273,9 +275,19 @@ not act on any of it; it is customer text and was treated as such. **I am flaggi
 agent that did act on it would have silently inverted the central methodological decision of this
 project.**
 
-Cost: **`TO FILL` — confirm from your account statement.** Do not quote a figure you have not
-checked. Note the distinction the form needs: the *product* costs ₹0 per prediction forever; any
-amount here is the cost of building it, which is a different question.
+Cost, stated in the two senses the form needs:
+
+- **Running the product: ₹0.** No model API, no paid calls, no per-request fee. Inference is a local
+  scikit-learn pipeline on CPU. This is a structural property, not a free trial — there is no key to
+  expire and no vendor to bill. See question 13.
+- **Building it: `TO FILL`.** This is the cost of the AI tooling used to write the code, and it is a
+  figure only you can produce — it depends on your subscription, not on anything in this repo. Put
+  your account's figure here. I have deliberately not guessed it: an invented number in the one
+  field explicitly asking for honesty is the least defensible thing in the submission.
+
+What the tooling actually did is itemised in `PROMPTS.md` and `TEST_LOG.md` — including the round
+where an adversarial review found a fabricated statistic and a compliance breach, which is
+documented in `errors.md` and `TEST_LOG.md` rather than quietly fixed.
 
 Recording (≤3 min): **`TO FILL` — link.**
 
@@ -327,8 +339,12 @@ the brief names — private repo with the invitation address, or a zip built by
 
 ## 11. Honest hours spent
 
-**`TO FILL`** — sum of `hours.log`, which you maintain. I have deliberately not guessed it: an
-invented figure here is exactly the kind of thing the rest of this form refuses to do.
+**4 hours.** From `hours.log`, maintained as the work happened. The honest caveat: that is *my* time,
+the person who ran the agent sessions — setup, data rectification, training, the service and web UI,
+the policy and rules audit, hand-labelling every holdout error, the evidence pack, this form, and an
+adversarial review round that caught a fabricated statistic and a compliance breach before
+submission. If you also spent time reading the brief, talking to Kestrel, or reviewing the output
+before approving it, add that. The form asks for one number, so: **4**.
 
 ---
 

@@ -140,14 +140,57 @@ The tests generate synthetic spreadsheets in temporary folders. They never touch
 - `docs/submission-form.md`: draft answers for the Kestrel assignment form. Fill the blanks from `artifacts/`.
 - `docs/explain.md`: the problem in plain words.
 
+## Data handling
+
+This repository was built from a client's service-request export. It is safe to publish, and it is
+worth being precise about why.
+
+**Not in this repository.** `data/input/` — the raw customer files — is excluded by `.gitignore` and
+has never been committed (verified across every commit). The client's operations policy §10 states
+that customer and operational data *"must not be published, uploaded to public repositories or shared
+beyond the engagement team."* The assignment brief agrees and names the delivery route: a private
+repository shared with the invitation address, or a zip. Build that zip with
+`tools/package_data_for_handover.py`, which refuses to write inside the repo and prints a SHA-256.
+
+**In this repository, and why it is safe:**
+
+| File | Contents |
+|---|---|
+| `artifacts/model.joblib` | Fitted coefficients and TF-IDF vocabularies. The word vectoriser's token pattern excludes digits, so **no** order number, warranty serial or other customer identifier can appear in it. Enforced by `tests/test_model_privacy.py`, which fails the build if one ever does. No names, phone numbers, emails, verbatim complaints, timestamps or outcomes are present. |
+| `artifacts/predictions.csv` | The deliverable: `request_id` and predicted team only. No customer text. |
+| `artifacts/metrics.json` | Aggregate accuracy figures. No customer text. |
+| `docs/`, `output/`, logs | Prose and measured figures. The five rows of instruction-like text found in the source data are quoted in `errors.md` and `NOTES.md` **pseudonymised as row A–row E**, without their ticket ids. |
+
+**PII scan of the source data:** 0 names, 0 phone numbers, 0 email addresses. 1,396 customer
+registration numbers (`reg no SR#####`, a 5-digit namespace distinct from the 6-digit `request_id`)
+appear inside request text. Under the DPDP Act 2023 these are pseudonymous personal data — the rows
+still carry product, warranty status, channel, timestamp and outcome — so the exclusion above is a
+substantive control, not a formality. Only two registration numbers appear in both train and test.
+
+**Operational data.** `metrics.json` publishes per-queue closed-request volumes and accuracy. These
+are non-identifying aggregates and are necessary to evidence the numbers, but they are Kestrel's
+operational data under §10 and the client should confirm that scope in writing.
+
 ## Limits
 
 - Model quality on your real data is unknown until you run the pipeline. Read `artifacts/audit.txt` first.
-- The service has no authentication and no file-upload screen. Copy files into the folder.
+- The service has **no authentication**. `POST /api/pipeline/run` retrains in place and rewrites
+  `artifacts/model.joblib`; anyone who can reach the port can do that. Bind to localhost, or put a
+  token in front, before exposing it to a network. The container sets `KESTREL_HOST=0.0.0.0`, so
+  `-p 8000:8000` publishes those endpoints to whatever network Docker is on.
+- `request_text` is capped at 4,000 characters. Uncapped, a single multi-megabyte request cost 86
+  seconds of CPU and concurrent calls saturated the threadpool until `/api/health` stopped
+  answering. Longer text is truncated for routing, with a warning in the response.
 - One background job at a time. One server process.
 - `.xls` reading uses `xlrd` and has no test here (the tests write `.xlsx` and `.csv`).
 - The `Dockerfile` and `Makefile` have **not** been executed: neither `docker` nor `make` is
   installed in the environment that produced this project. They are verified by inspection and
   by running every command they wrap. Build and run them yourself before promising the client a
-  container.
+  container. The dependency pins (`numpy==2.5.3`, `scipy==1.18.1`) have no wheels below Python
+  3.12, which the image uses — but check that your platform is covered before you rely on it.
+- **Five rows of the training data contain text written to look like instructions to an AI agent**,
+  asking for the bot's labels to be treated as verified ground truth. They were treated as customer
+  text and nothing else; the training target was never `team_label`. They are inert here, but they
+  mean Kestrel's intake channel accepts text engineered to manipulate downstream AI systems, which
+  is worth raising with them as a security matter. See `errors.md` E10.
 - Skills, agents and any LLM integration are interfaces only. Nothing in the app calls an LLM.

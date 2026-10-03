@@ -16,6 +16,12 @@ PRETTY = {"p_": "product", "w_": "warranty", "c_": "channel"}
 CLARIFY = ("Ask the customer: which product, and is it (a) not working, (b) needs a filter or part, "
            "(c) installation, or (d) a payment or refund question?")
 
+# Longest request text we will vectorise. Measured on this machine: a 6.25 MB request_text took
+# 86 seconds of CPU through an unauthenticated POST, and enough concurrent calls saturated the
+# threadpool so /api/health stopped answering. Real complaints are a few hundred characters, so
+# this costs nothing in accuracy and closes the cheapest denial-of-service there was.
+MAX_TEXT_CHARS = 4000
+
 
 def _norm(v) -> str:
     v = (v or "").strip().lower()
@@ -57,9 +63,18 @@ class Router:
         except ModelNotReadyError:
             return False
 
-    def _explain(self, df: pd.DataFrame, team: str, k: int = 5):
+    def _explain(self, df: pd.DataFrame, team: str, k: int = 5, X=None):
+        """Top contributing features for one row.
+
+        `X` is the already-transformed matrix. Passing it matters: this used to re-run
+        pre.transform(df) on the same frame that predict_proba had just transformed, so every
+        request paid for vectorisation twice. On a 6 MB request_text that was ~43 of the 86
+        seconds an unauthenticated caller could burn on one POST. The caller owns the transform;
+        this only reads it.
+        """
         pre, clf = self.pipe.named_steps["pre"], self.pipe.named_steps["clf"]
-        X = pre.transform(df)
+        if X is None:
+            X = pre.transform(df)
         names = pre.get_feature_names_out()
         j = list(clf.classes_).index(team)
         row = sp.csr_matrix(X.multiply(clf.coef_[j]))
@@ -78,6 +93,11 @@ class Router:
         self.ensure_fresh()
         warnings = []
         text = clean_text(rec.get("request_text", ""))
+        if len(text) > MAX_TEXT_CHARS:
+            # Defence in depth. The API caps this too, but route() is also reachable from the CLI,
+            # the plugin surface and batch callers, and vectorisation cost is linear in length.
+            warnings.append(f"Request text truncated to {MAX_TEXT_CHARS:,} characters for routing.")
+            text = text[:MAX_TEXT_CHARS]
         if not text:
             warnings.append("No request text: the decision uses product, warranty and channel only.")
         row = {"text": text, "product_family": _norm(rec.get("product_family")),
@@ -88,13 +108,15 @@ class Router:
                     warnings.append(f"Unrecognised {k} '{row[k]}': treated as unknown.")
                 row[k] = "unknown"
         df = add_meta(pd.DataFrame([row]))
-        p = self.pipe.predict_proba(df)[0]
+        pre, clf = self.pipe.named_steps["pre"], self.pipe.named_steps["clf"]
+        X = pre.transform(df)          # once; _explain reuses it
+        p = clf.predict_proba(X)[0]
         order = p.argsort()[::-1]
         classes = self.pipe.classes_
         team, conf = str(classes[order[0]]), float(p[order[0]])
         alts = [{"team": str(classes[i]), "probability": round(float(p[i]), 3)} for i in order[1:3]]
         reasons = [f"Routed to {team}: model confidence {conf:.0%}; next best {alts[0]['team']} {alts[0]['probability']:.0%}."]
-        words, _ = self._explain(df, team)
+        words, _ = self._explain(df, team, X=X)
         if words:
             reasons.append("Phrases that pointed here: " + ", ".join(f"'{w}'" for w in words) + ".")
         reasons.append(f"Context read: product {row['product_family']}, warranty {row['warranty_status']}, channel {row['channel']}.")

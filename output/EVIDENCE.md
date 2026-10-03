@@ -1,6 +1,6 @@
 # Evidence
 
-Generated 2026-10-02 21:21:02. Every number comes from `artifacts/metrics.json`.
+Generated 2026-10-03 10:56:37. Every number comes from `artifacts/metrics.json`.
 
 ## Setup
 - Target: the team that finally closed each request, mapped to current team names.
@@ -12,14 +12,14 @@ Generated 2026-10-02 21:21:02. Every number comes from `artifacts/metrics.json`.
 | | Accuracy vs final team | 95% interval | Macro-F1 |
 |---|---|---|---|
 | Bot | 75.0% | 72.3% to 77.5% | 0.7644 |
-| Model | 84.5% | 82.4% to 86.7% | 0.8438 |
+| Model | 84.3% | 82.2% to 86.5% | 0.842 |
 | Model agreement with the bot's own label | 78.6% | | |
 
-Difference: 9.5 points. Gap between intervals: 4.9 points.
+Difference: 9.3 points. Gap between intervals: 4.7 points.
 
 **Paired test (McNemar).** Both systems predict the same 976 rows, so the paired test is the
-right one. Of the 129 rows where they disagree, the model is right on **111** and the bot on **18**.
-Exact two-sided binomial **p = 1.5e-17**. The interval comparison above is valid but understated this
+right one. Of the 127 rows where they disagree, the model is right on **109** and the bot on **18**.
+Exact two-sided binomial **p = 4.6e-17**. The interval comparison above is valid but understated this
 by about sixteen orders of magnitude. The 18 regressions are the more useful number — those are the
 cases to inspect before trusting the router.
 
@@ -30,7 +30,7 @@ Measured rather than asserted — training the identical pipeline on `team_label
 unseen holdout data. Fitting it *including* the holdout rows gives 87.50%, which is memorisation of
 the bot's labels rather than routing skill, and is what a careless evaluation would report.
 
-**Ceiling: how much of the remaining 15.5% is signal.** This submission previously asserted the
+**Ceiling: how much of the remaining 15.7% is signal.** This submission previously asserted the
 ceiling was set by the data without measuring it. It can be measured:
 
 | | |
@@ -51,16 +51,16 @@ short. The model is not merely better than the incumbent — it is better than a
 version of it.
 
 ## How often it is wrong
-- Wrong first touch: bot 25.0%, model 15.5%.
-- Weakest team: Product Advice (recall 78.0%).
-- Text seen in training: 82.2%. Text never seen: 84.9% (87.9% of holdout).
-- First half of holdout months 86.4%, last month 83.8%. Drift 2.6 points.
+- Wrong first touch: bot 25.0%, model 15.7%.
+- Weakest team: Returns & Replacement (recall 77.9%).
+- Text seen in training: 83.0%. Text never seen: 84.5% (87.9% of holdout).
+- First half of holdout months 86.4%, last month 83.5%. Drift 2.9 points.
 
 ## Confidence gate
-16.8% of requests flagged for a person. Accuracy on unflagged 95.7%. Accuracy on flagged 29.3%.
+16.4% of requests flagged for a person. Accuracy on unflagged 95.7%. Accuracy on flagged 26.2%.
 
 ## Expected score (write this before submitting)
-Point 81.9%, range 78.8% to 84.1%.
+Point 81.4%, range 78.3% to 83.6%.
 Method: point = holdout accuracy - drift; low = interval low - drift - 1.0 point censoring allowance; high = interval high - drift.
 
 ## Error taxonomy (hand-read at least 50 errors from artifacts/errors_holdout.csv)
@@ -103,7 +103,7 @@ pattern appears 5 times in `train.csv` and 0 times in any other input file.
 
 **Where the model does well.** The errors concentrate where the *input* is broken, not where the
 model is weak. On the 87.9% of the holdout whose text never appeared in training it
-still scores 84.9%.
+still scores 84.5%.
 
 > **Removed 2026-10-03 — a fabricated statistic.** This section previously read: *"On the 83.2% of
 > the holdout that is clear, single-intent and has a trustworthy product column, accuracy is

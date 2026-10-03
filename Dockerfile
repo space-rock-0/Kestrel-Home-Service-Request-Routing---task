@@ -16,6 +16,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Do not run as root. The image only serves HTTP, reads data/input and writes artifacts/, and
+# none of that needs privilege. A container running as root turns any future RCE into a
+# container compromise rather than an unprivileged one.
+#
+# Ordering matters: pip and COPY both need root, so the user is created and switched to only
+# afterwards. /app is chowned because POST /api/pipeline/run retrains in place and rewrites
+# artifacts/model.joblib -- as an unprivileged user on a root-owned tree that would fail.
+RUN useradd --create-home --uid 1000 kestrel && chown -R kestrel:kestrel /app
+USER kestrel
+
 ENV KESTREL_HOST=0.0.0.0 \
     KESTREL_PORT=8000 \
     KESTREL_INPUT_DIR=/app/data/input \

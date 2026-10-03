@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime
 from typing import Callable
 
@@ -182,7 +183,13 @@ def train(settings: Settings, ds: Dataset, log: Callable[[str], None] = print, h
               "products": sorted(tr.product_family.unique()), "warranties": sorted(tr.warranty_status.unique()),
               "channels": sorted(tr.channel.unique()), "trained_rows": int(len(closed)),
               "trained_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "params": params}
-    joblib.dump(bundle, settings.model_path, compress=3)
+    # Atomic write. Router.ensure_fresh() stats and reloads this file on every request, so a
+    # direct dump could hand a concurrent request a truncated joblib and return HTTP 500 on the
+    # primary endpoint. It self-healed, but it was a guaranteed intermittent 500 during every
+    # retrain. os.replace() is atomic on POSIX and Windows.
+    tmp = settings.model_path.with_suffix(settings.model_path.suffix + ".tmp")
+    joblib.dump(bundle, tmp, compress=3)
+    os.replace(tmp, settings.model_path)
 
     test_info = None
     if ds.test is not None:
