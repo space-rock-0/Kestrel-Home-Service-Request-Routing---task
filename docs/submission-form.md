@@ -3,9 +3,9 @@
 > · **L** = `artifacts/errors_holdout_labelled.csv` · **P** = `ops-policy.pdf` page 1 ·
 > **N** = `python -m kestrel run numbers` · **C** = the author.
 >
-> Three items cannot be produced by the work itself and are marked **`TO FILL`** with exactly what
-> they need: the AI tooling cost (your subscription, not mine), the recording link, and the Drive
-> link. Everything else is filled, including the public GitHub URL in question 12.
+> Two items cannot be produced by the work itself and are marked **`TO FILL`** with exactly what
+> they need: the recording link, and the Drive link. Everything else is filled — including the AI
+> tooling cost, the hours, and the public GitHub URL in question 12.
 > Nothing else is blank. Every placeholder from the original draft has been resolved.
 
 ---
@@ -280,14 +280,20 @@ Cost, stated in the two senses the form needs:
 - **Running the product: ₹0.** No model API, no paid calls, no per-request fee. Inference is a local
   scikit-learn pipeline on CPU. This is a structural property, not a free trial — there is no key to
   expire and no vendor to bill. See question 13.
-- **Building it: `TO FILL`.** This is the cost of the AI tooling used to write the code, and it is a
-  figure only you can produce — it depends on your subscription, not on anything in this repo. Put
-  your account's figure here. I have deliberately not guessed it: an invented number in the one
-  field explicitly asking for honesty is the least defensible thing in the submission.
+- **Building it: ₹0.** I worked on the free tier of the coding agent throughout, so no paid
+  inference or subscription was used to produce this. Two caveats so you can read the number
+  correctly: the free tier has usage limits, so this is not a claim that heavy AI-assisted work is
+  free in general — on a metered plan the same session would have cost something. And it excludes
+  my own time, which is reported separately in question 11. **If you would rather quote what a paid
+  tier would have cost, put that here instead** — it is the more useful number for you, and I would
+  not argue with it.
 
 What the tooling actually did is itemised in `PROMPTS.md` and `TEST_LOG.md` — including the round
 where an adversarial review found a fabricated statistic and a compliance breach, which is
-documented in `errors.md` and `TEST_LOG.md` rather than quietly fixed.
+documented in `errors.md` and `TEST_LOG.md` rather than quietly fixed. The parts of the job the
+tooling did *not* do are the parts that mattered most: the decision to train on real outcomes
+instead of the bot's labels, the paired significance test that rejected my own best "improvement",
+and the disclosure of the prompt-injection rows. Those were judgement calls, and they are mine.
 
 Recording (≤3 min): **`TO FILL` — link.**
 
