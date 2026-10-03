@@ -4,8 +4,8 @@
 > **N** = `python -m kestrel run numbers` · **C** = the author.
 >
 > Three items cannot be produced by the work itself and are marked **`TO FILL`** with exactly what
-> they need: the AI tooling cost (your subscription, not mine), the recording link, and the Drive and
-> GitHub URLs. Everything else is filled.
+> they need: the AI tooling cost (your subscription, not mine), the recording link, and the Drive
+> link. Everything else is filled, including the public GitHub URL in question 12.
 > Nothing else is blank. Every placeholder from the original draft has been resolved.
 
 ---
@@ -350,7 +350,13 @@ before approving it, add that. The form asks for one number, so: **4**.
 
 ## 12. GitHub repo link
 
-**`TO FILL`** — public URL, verified by a fresh clone into a new venv.
+**https://github.com/space-rock-0/Kestrel-Home-Service-Request-Routing---task**
+
+Public, on `main`, and **verified by a fresh anonymous clone into a new virtualenv**: the clone was
+confirmed to contain no data files, `pip install -r requirements.txt` to succeed on Python 3.12,
+`python -m kestrel doctor` to report the model ready, the service to answer `POST /api/v1/predict`
+with the correct team and human-readable reasons, and `pytest -q` to pass. That is the "starts from
+your README on a clean machine" requirement, checked end to end rather than asserted.
 
 > **What is in the public repo, and what is not.** The repository is public and contains **the code,
 > the trained model, `predictions.csv` and `metrics.json`. It does not contain `data/input/`.**
