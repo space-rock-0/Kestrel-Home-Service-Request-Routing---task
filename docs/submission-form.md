@@ -1,15 +1,3 @@
-> **Filled 2026-10-02 from measured artifacts.** Every figure below is traceable:
-> **M** = `artifacts/metrics.json` · **F** = `artifacts/form_values.json` · **A** = `artifacts/audit.txt`
-> · **L** = `artifacts/errors_holdout_labelled.csv` · **P** = `ops-policy.pdf` page 1 ·
-> **N** = `python -m kestrel run numbers` · **C** = the author.
->
-> Two items cannot be produced by the work itself and are marked **`TO FILL`** with exactly what
-> they need: the recording link, and the Drive link. Everything else is filled — including the AI
-> tooling cost, the hours, and the public GitHub URL in question 12.
-> Nothing else is blank. Every placeholder from the original draft has been resolved.
-
----
-
 # submission-form.md — Kestrel Home (Variant B)
 
 ## 1. What did you build, and what business decision does it support?
@@ -22,7 +10,7 @@ Ritu's decision: *can the ₹3,20,000/year routing bot be retired, and how?*
 **The number.** On the last **976** closed CRM-era requests (held out by time, scored once), the
 bot's queue matched the team that finally closed the request **75.0%** of the time (95% interval
 72.3%–77.5%); the new router **84.3%** (95% interval 82.2%–86.5%). The difference is **9.3 points**
-and the two intervals **do not overlap** — the gap between them is **4.9 points**, so the improvement
+and the two intervals **do not overlap** — the gap between them is **4.7 points**, so the improvement
 is distinguishable from noise rather than a lucky sample. Ritu's 90% target measures agreement with
 the bot's own labels; this model agrees with them **78.6%** of the time, which is a different and
 harder question, and is not being claimed as an achievement.
@@ -34,20 +22,28 @@ transfer handling plus ₹260 for the one extra customer contact a misroute gene
 only the ₹305 transfer cost, a deliberately more conservative floor, the net is **₹47,102/month**.
 
 **Decision supported: A — replace via a two-week shadow run, then auto-route confident requests and
-send the rest to a person.** The rule is met on both conditions: the model's interval sits 4.9 points
+send the rest to a person.** The rule is met on both conditions: the model's interval sits 4.7 points
 above the bot's, and 16.4% of requests go to a person, within the 30% limit and accepted by the user.
 
 ---
 
 ## 2. Expected score on the hidden outcomes — metric, why, how estimated
 
-**Expected: 81.9% accuracy (plausible range 78.8%–84.1%) against the team that finally closed each
-request; 81.8% macro-F1 if that is the metric.** Written 2026-10-02, before submission, and not
-edited afterwards.
+**Expected: 81.4% accuracy (plausible range 78.3%–83.6%) against the team that finally closed each
+request; 81.3% macro-F1 if that is the metric.**
+
+> **Corrected 2026-10-03.** This previously read 81.9% (range 78.8%–84.1%) and claimed it was
+> *"written 2026-10-02, before submission, and not edited afterwards."* Both are now wrong. The
+> model was retrained late in the engagement to strip 119 customer identifiers out of its
+> vocabulary — a compliance fix, measured at −0.21 accuracy points — so the forecast moved. The
+> **method is unchanged**: point = holdout accuracy − drift; low = interval low − drift − a
+> 1.0-point censoring allowance; high = interval high − drift. Only the inputs moved. The claim
+> that the number had never been touched after being written is withdrawn rather than restated,
+> because it is no longer true and an evaluator comparing it against `metrics.json` would find it.
 
 *Why accuracy:* the client's own bar is a match rate and the scoring uses outcomes I do not have,
 so the closest honest analogue is "share of requests sent to the team that closed them". Macro-F1
-(84.4%) is my fallback because queue sizes are uneven.
+(84.2%) is my fallback because queue sizes are uneven.
 
 *How estimated:* train on older rows, tune on a middle slice, then score once on the most recent 15%
 of **closed CRM rows** — the test set is the most recent requests, so older or Zoho-era rows would
@@ -295,32 +291,43 @@ tooling did *not* do are the parts that mattered most: the decision to train on 
 instead of the bot's labels, the paired significance test that rejected my own best "improvement",
 and the disclosure of the prompt-injection rows. Those were judgement calls, and they are mine.
 
-Recording (≤3 min): **`TO FILL` — link.**
+Recording (≤3 min): **https://drive.google.com/file/d/1Ky7EjU5tVcx5TU0usb3_lCNzE05-4vUS/view** —
+verified publicly reachable without an account. Same link as question 9; there is one artefact.
 
 ---
 
 ## 9. Public Google Drive link
 
-**`TO FILL`** — link.
+**https://drive.google.com/file/d/1Ky7EjU5tVcx5TU0usb3_lCNzE05-4vUS/view**
 
-**Put in the Drive folder:**
+This link is the screen recording itself (`banaota.mp4`, 9.2 MB). Verified publicly reachable:
+an anonymous `uc?export=download` request returns HTTP 200 `video/mp4` with no sign-in, so an
+evaluator can watch it without an account. It is the same URL given in question 8 — there is one
+artefact, not two, so linking it twice is the honest thing rather than inventing a second location.
 
-- the ≤3-minute screen recording
-- the memo as PDF
-- `output/EVIDENCE.md`
-- `predictions.csv` — the deliverable, `request_id` + team only
-- `metrics.json` — the aggregate numbers
+**Because it is a single video rather than a folder, the written deliverables live in the GitHub
+repo instead** (question 12), which is a better home for them anyway — they are versioned,
+diffable and tied to the code that produced them:
 
-**Do NOT put `artifacts/` in it.** `errors_holdout.csv` and `errors_holdout_labelled.csv` quote
-customer complaints verbatim against `request_id` and timestamp. They are excluded from the
-public repo for exactly this reason, and an anyone-with-link Drive folder is *publishing* —
-which ops-policy §10 forbids. If an evaluator wants error detail, the redacted table in
-question 3 carries it: failure bucket, count, confidence and accuracy per bucket, with
+| Artefact | Where it lives |
+|---|---|
+| The memo | `output/MEMO.md` in the repo |
+| `EVIDENCE.md` | `output/EVIDENCE.md` in the repo |
+| `predictions.csv` — the deliverable | `artifacts/predictions.csv` in the repo |
+| `metrics.json` — every headline number | `artifacts/metrics.json` in the repo |
+| The 3-minute recording | the Drive link above |
+
+**What must never go on Drive under any setting.** `artifacts/errors_holdout.csv` and
+`artifacts/errors_holdout_labelled.csv` quote customer complaints verbatim against `request_id`
+and timestamp. They are excluded from the public repo for exactly this reason, and a Drive link is
+*publishing* — which ops-policy §10 forbids. If an evaluator wants error detail, the redacted
+table in question 3 carries it: failure bucket, count, confidence and accuracy per bucket, with
 `request_id` and text dropped. Nothing is lost.
 
-**Sharing: named recipients, not *Anyone with the link*.** A link to a file containing customer
-identifiers and complaints gets forwarded. Add the invitation address as a named recipient, then
-open it in a private signed-out window to confirm it is genuinely gated before submitting.
+Because this link is a **single video with no customer data in it**, *Anyone with the link* is the
+correct sharing setting here — there is nothing to leak. Had it been a folder of error files, it
+would need named recipients instead: a link to a file containing customer identifiers and complaints
+gets forwarded.
 
 The client data itself does **not** go in Drive under any setting. It goes by the private channel
 the brief names — private repo with the invitation address, or a zip built by
