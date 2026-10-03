@@ -180,7 +180,10 @@ operational data under §10 and the client should confirm that scope in writing.
   `-p 8000:8000` publishes those endpoints to whatever network Docker is on.
 - `request_text` is capped at 4,000 characters. Uncapped, a single multi-megabyte request cost 86
   seconds of CPU and concurrent calls saturated the threadpool until `/api/health` stopped
-  answering. Longer text is truncated for routing, with a warning in the response.
+  answering. Over HTTP, a longer `request_text` is **rejected with 422** rather than truncated —
+  measured from a clean clone, a 5 MB body comes back 422 and a 9,000-character body comes back 422.
+  Callers that bypass HTTP (CLI, plugins, batch) get truncation instead, with a warning in the
+  response. Real complaints run to a few hundred characters, so nothing legitimate is rejected.
 - One background job at a time. One server process.
 - `.xls` reading uses `xlrd` and has no test here (the tests write `.xlsx` and `.csv`).
 - The `Dockerfile` and `Makefile` have **not** been executed: neither `docker` nor `make` is
